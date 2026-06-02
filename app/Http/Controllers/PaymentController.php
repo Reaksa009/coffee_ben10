@@ -1,0 +1,204 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\Payment;
+use App\Services\KHQRService;
+use App\Services\PaymentVerificationService;
+use KHQR\BakongKHQR;
+
+class PaymentController extends Controller
+{
+    protected $khqr;
+    protected $verificationService;
+
+    public function __construct(KHQRService $khqr, PaymentVerificationService $verificationService)
+    {
+        $this->khqr = $khqr;
+        $this->verificationService = $verificationService;
+    }
+
+    public function index(Request $request)
+    {
+        $payments = Payment::with('order')
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->query('status')))
+            ->when($request->filled('method'), fn ($query) => $query->where('payment_method', $request->query('method')))
+            ->when($request->filled('verification'), fn ($query) => $query->where('verification_status', $request->query('verification')))
+            ->orderByDesc('created_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        $summary = [
+            'total' => Payment::sum('amount'),
+            'paid' => Payment::where('status', 'paid')->sum('amount'),
+            'pending' => Payment::where('status', 'pending')->count(),
+            'failed_verifications' => Payment::where('verification_status', 'failed')->count(),
+        ];
+
+        $methods = Payment::query()
+            ->select('payment_method')
+            ->whereNotNull('payment_method')
+            ->distinct()
+            ->orderBy('payment_method')
+            ->pluck('payment_method');
+
+        return view('payments.index', compact('payments', 'summary', 'methods'));
+    }
+
+    public function show(Payment $payment)
+    {
+        $payment->load('order.items.product');
+
+        return view('payments.show', compact('payment'));
+    }
+
+    public function createKHQRPayment($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        try {
+            $resp = $this->khqr->createPaymentRequest($order);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'message' => 'Unable to generate KHQR payment.',
+                'error' => $e->getMessage(),
+            ], 422);
+        }
+
+        // create pending payment record
+        $payment = Payment::create([
+            'order_id' => $order->id,
+            'provider' => $resp['provider'] ?? 'khqr',
+            'payment_method' => 'khqr',
+            'amount' => $order->total_amount,
+            'status' => 'pending',
+            'meta' => $resp,
+        ]);
+
+        return response()->json([
+            'payment' => $payment,
+            'qr' => $resp['qr_data'] ?? null,
+            'raw_payload' => $resp['raw_payload'] ?? null,
+            'payment_url' => $resp['payment_url'] ?? null,
+            'khqr_email' => $resp['credential'] ?? null,
+            'expires_at' => $resp['expires_at'] ?? null,
+            'expires_in_seconds' => $resp['expires_in_seconds'] ?? null,
+        ]);
+    }
+
+    public function checkKHQRPayment(Payment $payment)
+    {
+        if ($payment->status === 'paid') {
+            // Run verification if not already verified
+            if ($payment->verification_status !== 'verified') {
+                $verifyResult = $this->verificationService->verify($payment);
+                if (!$verifyResult['success']) {
+                    return response()->json([
+                        'status' => 'paid',
+                        'verification_status' => 'failed',
+                        'message' => 'Payment received but verification failed: ' . $verifyResult['error'],
+                        'error' => $verifyResult['error'],
+                    ], 422);
+                }
+            }
+
+            return response()->json([
+                'status' => 'paid',
+                'verification_status' => $payment->verification_status,
+                'message' => 'Payment successful and verified.',
+                'verified_at' => $payment->verified_at,
+            ]);
+        }
+
+        $md5 = data_get($payment->meta, 'md5');
+        $token = config('khqr.api_token');
+
+        if (! $md5 || ! $token) {
+            return response()->json([
+                'status' => 'pending',
+                'message' => 'Payment is still pending.',
+            ]);
+        }
+
+        try {
+            $response = (new BakongKHQR($token))->checkTransactionByMD5($md5);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'status' => 'pending',
+                'message' => 'Payment is still pending.',
+            ]);
+        }
+
+        if (($response['responseCode'] ?? null) === 0) {
+            $payment->update([
+                'status' => 'paid',
+                'transaction_id' => data_get($response, 'data.hash', 'KHQR-' . $payment->id),
+                'meta' => array_merge($payment->meta ?? [], [
+                    'confirmed_at' => now()->toDateTimeString(),
+                    'bakong_response' => $response,
+                ]),
+            ]);
+
+            // Run verification after payment is marked as paid
+            $verifyResult = $this->verificationService->verify($payment);
+
+            if (!$verifyResult['success']) {
+                return response()->json([
+                    'status' => 'paid',
+                    'verification_status' => 'failed',
+                    'message' => 'Payment received but verification failed: ' . $verifyResult['error'],
+                    'error' => $verifyResult['error'],
+                ], 422);
+            }
+
+            $payment->order()->update(['status' => 'paid']);
+
+            return response()->json([
+                'status' => 'paid',
+                'verification_status' => $payment->verification_status,
+                'message' => 'Payment successful and verified.',
+                'transaction_id' => $payment->transaction_id,
+                'verified_at' => $payment->verified_at,
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'pending',
+            'message' => $response['responseMessage'] ?? 'Payment is still pending.',
+        ]);
+    }
+
+    public function verifyPayment(Payment $payment)
+    {
+        $result = $this->verificationService->verify($payment);
+
+        if (!$result['success']) {
+            return response()->json($result, 422);
+        }
+
+        return response()->json($result);
+    }
+
+    // Endpoint to confirm payment (simulated)
+    public function confirm(Request $request)
+    {
+        $orderId = $request->query('order');
+        $order = Order::findOrFail($orderId);
+
+        $payment = $order->payments()->latest()->first();
+        if ($payment) {
+            $payment->update(['status' => 'paid', 'transaction_id' => 'SIM-' . $payment->id, 'meta' => array_merge($payment->meta ?? [], ['confirmed_at' => now()->toDateTimeString()])]);
+            $order->update(['status' => 'paid']);
+        }
+
+        return redirect()
+            ->route('pos.receipt', ['id' => $order->id])
+            ->with('success', 'Payment successful.');
+    }
+}
