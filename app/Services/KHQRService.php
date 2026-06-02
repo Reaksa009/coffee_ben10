@@ -9,19 +9,24 @@ use KHQR\Helpers\KHQRData;
 use KHQR\Helpers\Utils;
 use KHQR\Models\IndividualInfo;
 use KHQR\Models\MerchantInfo;
+use Illuminate\Support\Facades\Http;
 
 class KHQRService
 {
+    protected string $provider;
     protected string $bakongAccountId;
     protected string $accountName;
     protected string $merchantCity;
     protected int $currency;
+    protected string $apiBaseUrl;
+    protected ?string $apiKey;
     protected ?string $merchantId;
     protected ?string $acquiringBank;
     protected int $dynamicQrExpiresIn;
 
     public function __construct()
     {
+        $this->provider = (string) config('khqr.provider', 'local');
         $this->bakongAccountId = $this->requiredString(
             'KHQR_BAKONG_ACCOUNT_ID',
             config('khqr.bakong_account_id')
@@ -29,12 +34,48 @@ class KHQRService
         $this->accountName = (string) (config('khqr.account_name') ?? 'POS System');
         $this->merchantCity = (string) (config('khqr.merchant_city') ?? 'PHNOM PENH');
         $this->currency = $this->currencyCode((string) (config('khqr.currency') ?? 'USD'));
+        $this->apiBaseUrl = rtrim((string) config('khqr.api_base_url', 'https://api.khqr.link'), '/');
+        $this->apiKey = config('khqr.api_key');
         $this->merchantId = config('khqr.merchant_id');
         $this->acquiringBank = config('khqr.acquiring_bank');
         $this->dynamicQrExpiresIn = (int) config('khqr.dynamic_qr_expires_in', 180);
     }
 
     public function createPaymentRequest(Order $order): array
+    {
+        if ($this->usesKhqrLink()) {
+            return $this->createKhqrLinkPaymentRequest($order);
+        }
+
+        return $this->createLocalPaymentRequest($order);
+    }
+
+    public function checkPaymentStatus(string $md5): array
+    {
+        $request = Http::acceptJson()->timeout(15);
+
+        if ($this->apiKey) {
+            $request = $request->withHeaders(['X-API-Key' => $this->apiKey]);
+        }
+
+        $response = $request->get($this->apiBaseUrl . '/v1/khqr/check', [
+            'md5' => $md5,
+            'bakongid' => $this->bakongAccountId,
+        ]);
+
+        if (! $response->ok()) {
+            throw new \RuntimeException('KHQR Link status check failed with HTTP ' . $response->status() . '.');
+        }
+
+        return $response->json() ?? [];
+    }
+
+    public function usesKhqrLink(): bool
+    {
+        return strtolower($this->provider) === 'khqr_link';
+    }
+
+    private function createLocalPaymentRequest(Order $order): array
     {
         $amount = $this->formatAmount((float) $order->total_amount);
         $reference = $this->paymentReference($order);
@@ -78,6 +119,7 @@ class KHQRService
         return [
             'provider' => 'khqr',
             'qr_data' => $qrData,
+            'qr_image_url' => null,
             'payment_url' => url('/pos/checkout/confirm?order=' . $order->id),
             'reference' => $reference,
             'expires_at' => $expiresAt->toIso8601String(),
@@ -96,6 +138,60 @@ class KHQRService
                 'created_at' => $createdAt->toIso8601String(),
                 'expires_at' => $expiresAt->toIso8601String(),
             ],
+        ];
+    }
+
+    private function createKhqrLinkPaymentRequest(Order $order): array
+    {
+        $amount = $this->formatAmount((float) $order->total_amount);
+        $request = Http::acceptJson()->timeout(15);
+
+        if ($this->apiKey) {
+            $request = $request->withHeaders(['X-API-Key' => $this->apiKey]);
+        }
+
+        $response = $request->get($this->apiBaseUrl . '/v1/khqr/create', [
+            'amount' => $amount,
+            'bakongid' => $this->bakongAccountId,
+            'merchantname' => $this->accountName,
+        ]);
+
+        if (! $response->ok()) {
+            throw new \RuntimeException('KHQR Link create failed with HTTP ' . $response->status() . '.');
+        }
+
+        $data = $response->json() ?? [];
+        if (($data['status'] ?? null) !== 'success' || empty($data['qr']) || empty($data['md5'])) {
+            throw new \RuntimeException($data['message'] ?? 'KHQR Link did not return a usable payment response.');
+        }
+
+        $expiresAt = isset($data['expires_at']) ? \Carbon\Carbon::parse($data['expires_at']) : null;
+        $createdAt = isset($data['created_at']) ? \Carbon\Carbon::parse($data['created_at']) : now();
+
+        return [
+            'provider' => 'khqr_link',
+            'qr_data' => null,
+            'qr_image_url' => $this->secureUrl((string) $data['qr']),
+            'payment_url' => null,
+            'reference' => $data['tran'] ?? $this->paymentReference($order),
+            'expires_at' => $expiresAt?->toIso8601String(),
+            'expires_in_seconds' => $expiresAt ? max(0, now()->diffInSeconds($expiresAt, false)) : null,
+            'md5' => $data['md5'],
+            'tran' => $data['tran'] ?? null,
+            'credential' => $this->bakongAccountId,
+            'account_name' => $this->accountName,
+            'raw_payload' => [
+                'bakong_account_id' => $this->bakongAccountId,
+                'merchant_name' => $this->accountName,
+                'merchant_city' => $this->merchantCity,
+                'amount' => (float) ($data['amount'] ?? $amount),
+                'currency' => $data['currency'] ?? ($this->currency === KHQRData::CURRENCY_KHR ? 'KHR' : 'USD'),
+                'reference' => $data['tran'] ?? null,
+                'description' => 'Order #' . $order->id,
+                'created_at' => $createdAt->toIso8601String(),
+                'expires_at' => $expiresAt?->toIso8601String(),
+            ],
+            'khqr_link_response' => $data,
         ];
     }
 
@@ -193,5 +289,12 @@ class KHQRService
     private function timestampInMilliseconds(CarbonInterface $time): string
     {
         return (string) (((int) $time->format('U')) * 1000 + (int) floor(((int) $time->format('u')) / 1000));
+    }
+
+    private function secureUrl(string $url): string
+    {
+        return str_starts_with($url, 'http://')
+            ? 'https://' . substr($url, 7)
+            : $url;
     }
 }

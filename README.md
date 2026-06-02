@@ -31,6 +31,9 @@ KHQR_BAKONG_ACCOUNT_ID=...
 KHQR_ACCOUNT_NAME=...
 KHQR_MERCHANT_CITY=PHNOM PENH
 KHQR_CURRENCY=USD
+KHQR_PROVIDER=khqr_link
+KHQR_API_BASE_URL=https://api.khqr.link
+KHQR_LINK_API_KEY=... # optional if KHQR Link requires merchant API keys
 ```
 
 If you connect MongoDB Atlas through Vercel Marketplace, populate `MONGODB_URI`; the app falls back to that value when `DB_URI` is not set.

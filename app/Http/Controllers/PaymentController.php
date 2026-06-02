@@ -82,6 +82,7 @@ class PaymentController extends Controller
         return response()->json([
             'payment' => $payment,
             'qr' => $resp['qr_data'] ?? null,
+            'qr_image_url' => $resp['qr_image_url'] ?? null,
             'raw_payload' => $resp['raw_payload'] ?? null,
             'payment_url' => $resp['payment_url'] ?? null,
             'khqr_email' => $resp['credential'] ?? null,
@@ -116,8 +117,9 @@ class PaymentController extends Controller
 
         $md5 = data_get($payment->meta, 'md5');
         $token = config('khqr.api_token');
+        $usesKhqrLink = $this->usesKhqrLinkProvider($payment);
 
-        if (! $md5 || ! $token) {
+        if (! $md5 || (! $usesKhqrLink && ! $token)) {
             return response()->json([
                 'status' => 'pending',
                 'message' => 'Payment is still pending.',
@@ -125,7 +127,11 @@ class PaymentController extends Controller
         }
 
         try {
-            $response = (new BakongKHQR($token))->checkTransactionByMD5($md5);
+            if ($usesKhqrLink) {
+                $response = $this->khqr->checkPaymentStatus($md5);
+            } else {
+                $response = (new BakongKHQR($token))->checkTransactionByMD5($md5);
+            }
         } catch (\Throwable $e) {
             report($e);
 
@@ -135,13 +141,13 @@ class PaymentController extends Controller
             ]);
         }
 
-        if (($response['responseCode'] ?? null) === 0) {
+        if ($this->isPaidKhqrResponse($response)) {
             $payment->update([
                 'status' => 'paid',
-                'transaction_id' => data_get($response, 'data.hash', 'KHQR-' . $payment->id),
+                'transaction_id' => $this->transactionIdFromResponse($response, $payment),
                 'meta' => array_merge($payment->meta ?? [], [
                     'confirmed_at' => now()->toDateTimeString(),
-                    'bakong_response' => $response,
+                    $usesKhqrLink ? 'khqr_link_response' : 'bakong_response' => $response,
                 ]),
             ]);
 
@@ -174,6 +180,35 @@ class PaymentController extends Controller
         ]);
     }
 
+    private function usesKhqrLinkProvider(Payment $payment): bool
+    {
+        return $payment->provider === 'khqr_link'
+            || data_get($payment->meta, 'provider') === 'khqr_link'
+            || data_get($payment->meta, 'khqr_link_response') !== null;
+    }
+
+    private function isPaidKhqrResponse(array $response): bool
+    {
+        if (($response['responseCode'] ?? null) !== 0) {
+            return false;
+        }
+
+        if (array_key_exists('verified', $response)) {
+            return ($response['verified'] ?? false) === true
+                && strtoupper((string) ($response['status'] ?? '')) === 'COMPLETED';
+        }
+
+        return true;
+    }
+
+    private function transactionIdFromResponse(array $response, Payment $payment): string
+    {
+        return data_get($response, 'data.hash')
+            ?? data_get($response, 'hash')
+            ?? data_get($response, 'tran')
+            ?? 'KHQR-' . $payment->id;
+    }
+
     public function verifyPayment(Payment $payment)
     {
         $result = $this->verificationService->verify($payment);
@@ -185,11 +220,17 @@ class PaymentController extends Controller
         return response()->json($result);
     }
 
-    // Endpoint to confirm payment (simulated)
+    // Endpoint to confirm payment for the local/simulated provider.
     public function confirm(Request $request)
     {
         $orderId = $request->query('order');
         $order = Order::findOrFail($orderId);
+
+        if (config('khqr.provider') === 'khqr_link') {
+            return redirect()
+                ->route('pos.receipt', ['id' => $order->id])
+                ->with('error', 'Payment must be confirmed by KHQR Link verification.');
+        }
 
         $payment = $order->payments()->latest()->first();
         if ($payment) {

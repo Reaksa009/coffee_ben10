@@ -672,8 +672,10 @@
                             throw new Error(data.error || data.message || 'Failed to generate KHQR payment.');
                         }
 
-                        if (data.qr) {
-                            const qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(data.qr) + '&size=250x250';
+                        if (data.qr_image_url || data.qr) {
+                            const qrSrc = data.qr_image_url
+                                ? data.qr_image_url
+                                : 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(data.qr) + '&size=250x250';
                             code.innerHTML = [
                                 '<div class="khqr-ticket-modern">',
                                 '<div class="khqr-ticket-header">',
@@ -690,17 +692,20 @@
                                 '</div>',
                                 '</div>'
                             ].join('');
-                            const qrText = document.createElement('pre');
-                            qrText.className = 'khqr-payload mt-3 text-start bg-light border rounded p-2 overflow-auto';
-                            qrText.textContent = data.qr;
-                            const details = document.createElement('details');
-                            details.className = 'mt-3';
-                            const summary = document.createElement('summary');
-                            summary.className = 'small text-muted';
-                            summary.textContent = 'Show KHQR payload';
-                            details.appendChild(summary);
-                            details.appendChild(qrText);
-                            code.appendChild(details);
+
+                            if (data.qr) {
+                                const qrText = document.createElement('pre');
+                                qrText.className = 'khqr-payload mt-3 text-start bg-light border rounded p-2 overflow-auto';
+                                qrText.textContent = data.qr;
+                                const details = document.createElement('details');
+                                details.className = 'mt-3';
+                                const summary = document.createElement('summary');
+                                summary.className = 'small text-muted';
+                                summary.textContent = 'Show KHQR payload';
+                                details.appendChild(summary);
+                                details.appendChild(qrText);
+                                code.appendChild(details);
+                            }
                         } else {
                             code.innerHTML = '<div class="alert alert-warning">Unable to generate KHQR code.</div>';
                         }

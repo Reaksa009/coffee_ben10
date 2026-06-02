@@ -39,21 +39,7 @@ class PaymentVerificationService
                 throw new Exception('No payment metadata available');
             }
 
-            // Verify Bakong response if available
-            $bakongResponse = $payment->meta['bakong_response'] ?? null;
-            if ($bakongResponse) {
-                if (($bakongResponse['responseCode'] ?? null) !== 0) {
-                    throw new Exception(sprintf(
-                        'Bakong verification failed: %s',
-                        $bakongResponse['responseMessage'] ?? 'Unknown error'
-                    ));
-                }
-
-                // Verify transaction hash
-                if (!isset($bakongResponse['data']['hash'])) {
-                    throw new Exception('No transaction hash in Bakong response');
-                }
-            }
+            $this->verifyProviderResponse($payment);
 
             // Verify payment is not too old (within 24 hours)
             if ($payment->updated_at->diffInHours(now()) > 24) {
@@ -103,5 +89,49 @@ class PaymentVerificationService
         return array_merge($verifyResult, [
             'order_status' => 'completed',
         ]);
+    }
+
+    private function verifyProviderResponse(Payment $payment): void
+    {
+        $meta = $payment->meta ?? [];
+        $provider = $payment->provider ?? ($meta['provider'] ?? null);
+
+        if ($provider === 'khqr_link' || isset($meta['khqr_link_response'])) {
+            $response = $meta['khqr_link_response'] ?? null;
+            if (! $response) {
+                return;
+            }
+
+            if (($response['responseCode'] ?? null) !== 0
+                || ($response['verified'] ?? false) !== true
+                || strtoupper((string) ($response['status'] ?? '')) !== 'COMPLETED') {
+                throw new Exception(sprintf(
+                    'KHQR Link verification failed: %s',
+                    $response['responseMessage'] ?? 'Unknown error'
+                ));
+            }
+
+            if (! isset($response['tran']) && ! isset($response['hash']) && ! isset($response['data']['hash'])) {
+                throw new Exception('No transaction identifier in KHQR Link response');
+            }
+
+            return;
+        }
+
+        $bakongResponse = $meta['bakong_response'] ?? null;
+        if (! $bakongResponse) {
+            return;
+        }
+
+        if (($bakongResponse['responseCode'] ?? null) !== 0) {
+            throw new Exception(sprintf(
+                'Bakong verification failed: %s',
+                $bakongResponse['responseMessage'] ?? 'Unknown error'
+            ));
+        }
+
+        if (! isset($bakongResponse['data']['hash'])) {
+            throw new Exception('No transaction hash in Bakong response');
+        }
     }
 }
