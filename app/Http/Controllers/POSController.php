@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Promo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\LoyaltyService;
 
 class POSController extends Controller
 {
@@ -83,6 +84,42 @@ class POSController extends Controller
             'promoCode' => $promoCode,
             'discountAmount' => $discountAmount,
             'finalTotal' => $finalTotal,
+            'pointValue' => LoyaltyService::POINT_VALUE,
+            'pointsPerDollar' => LoyaltyService::POINTS_PER_DOLLAR,
+        ]);
+    }
+
+    public function lookupCustomer(Request $request, LoyaltyService $loyalty)
+    {
+        $phone = $loyalty->normalizePhone($request->query('phone'));
+        $amount = max(0, (float) $request->query('amount', 0));
+
+        if (! $phone) {
+            return response()->json([
+                'found' => false,
+                'message' => 'Enter a phone number to check loyalty points.',
+            ]);
+        }
+
+        $customer = $loyalty->findByPhone($phone);
+
+        if (! $customer) {
+            return response()->json([
+                'found' => false,
+                'phone' => $phone,
+                'points_balance' => 0,
+                'redeemable_discount' => 0,
+                'message' => 'New customer. Points will start after payment.',
+            ]);
+        }
+
+        return response()->json([
+            'found' => true,
+            'name' => $customer->name,
+            'phone' => $customer->phone,
+            'points_balance' => (int) $customer->points_balance,
+            'redeemable_discount' => $loyalty->redeemableDiscount($customer, $amount),
+            'message' => 'Customer found.',
         ]);
     }
 
@@ -107,8 +144,15 @@ class POSController extends Controller
         return redirect()->back()->with('success', 'Item removed from cart.');
     }
 
-    public function placeOrder(Request $request)
+    public function placeOrder(Request $request, LoyaltyService $loyalty)
     {
+        $customerInput = $request->validate([
+            'customer_name' => ['nullable', 'string', 'max:120'],
+            'customer_phone' => ['nullable', 'string', 'max:40'],
+            'redeem_points' => ['nullable', 'boolean'],
+            'promo_code' => ['nullable', 'string', 'max:80'],
+        ]);
+
         $cart = session()->get('cart', []);
         if (empty($cart)) {
             return redirect()->route('pos.index')->with('error', 'Cart is empty');
@@ -119,23 +163,36 @@ class POSController extends Controller
         });
 
         // Handle promo code
-        $promoCode = $request->input('promo_code', session()->get('promo_code'));
+        $promoCode = $customerInput['promo_code'] ?? session()->get('promo_code');
         $promo = null;
-        $discountAmount = 0;
+        $promoDiscountAmount = 0;
 
         if ($promoCode) {
             $promo = Promo::where('code', strtoupper($promoCode))->first();
             if ($promo && $promo->isValid()) {
                 if (!$promo->min_order_amount || $total >= $promo->min_order_amount) {
-                    $discountAmount = $promo->calculateDiscount($total);
+                    $promoDiscountAmount = $promo->calculateDiscount($total);
                 }
             }
         }
 
-        $finalTotal = $total - $discountAmount;
+        $redeemPoints = $request->boolean('redeem_points');
 
         try {
-            $order = DB::transaction(function () use ($cart, $total, $finalTotal, $promo, $discountAmount) {
+            $order = DB::transaction(function () use ($cart, $total, $promo, $promoDiscountAmount, $loyalty, $customerInput, $redeemPoints) {
+                $customer = $loyalty->findOrCreateCustomer(
+                    $customerInput['customer_name'] ?? null,
+                    $customerInput['customer_phone'] ?? null
+                );
+                $redemption = $loyalty->redemptionFor($customer, $total - $promoDiscountAmount, $redeemPoints);
+
+                if ($customer && $redemption['points'] > 0) {
+                    $loyalty->redeem($customer, $redemption['points']);
+                }
+
+                $discountAmount = round($promoDiscountAmount + $redemption['discount'], 2);
+                $finalTotal = round(max(0.01, $total - $discountAmount), 2);
+
                 foreach ($cart as $item) {
                     $product = Product::whereKey($item['product_id'])->firstOrFail();
                     $quantity = max(1, (int) $item['quantity']);
@@ -151,8 +208,15 @@ class POSController extends Controller
 
                 $order = Order::create([
                     'user_id' => Auth::id(),
+                    'customer_id' => $customer?->id,
+                    'customer_name' => $customer?->name,
+                    'customer_phone' => $customer?->phone,
+                    'subtotal_amount' => $total,
                     'total_amount' => $finalTotal,
                     'discount_amount' => $discountAmount,
+                    'promo_discount_amount' => $promoDiscountAmount,
+                    'loyalty_discount_amount' => $redemption['discount'],
+                    'loyalty_points_redeemed' => $redemption['points'],
                     'promo_id' => $promo?->id,
                     'status' => 'pending',
                 ]);

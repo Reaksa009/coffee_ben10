@@ -1,6 +1,6 @@
 # Coffee Ben10 POS
 
-Laravel POS project for Coffee Ben10 with product, order, payment, promo, report, profile, and KHQR payment flows.
+Laravel POS project for Coffee Ben10 with product, order, payment, promo, customer loyalty, report, profile, and KHQR payment flows.
 
 ## Local Setup
 

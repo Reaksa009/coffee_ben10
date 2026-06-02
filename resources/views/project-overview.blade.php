@@ -162,8 +162,8 @@
             <h2><i class="bi bi-people text-primary"></i> Customer Management</h2>
             <p class="text-muted mb-2">Supports loyalty points, visit tracking, customer history, and promotions.</p>
             <div class="example-box">
-                <div class="fw-semibold">Visit-based reward example</div>
-                <div class="text-muted">Buy 9 coffees, get 1 free.</div>
+                <div class="fw-semibold">Current loyalty rule</div>
+                <div class="text-muted">Earn 10 points per $1 paid, redeem 1 point as $0.01 discount.</div>
             </div>
         </section>
 

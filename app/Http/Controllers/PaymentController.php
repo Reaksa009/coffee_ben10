@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\KHQRService;
+use App\Services\LoyaltyService;
 use App\Services\PaymentVerificationService;
 use KHQR\BakongKHQR;
 
@@ -13,11 +14,13 @@ class PaymentController extends Controller
 {
     protected $khqr;
     protected $verificationService;
+    protected $loyalty;
 
-    public function __construct(KHQRService $khqr, PaymentVerificationService $verificationService)
+    public function __construct(KHQRService $khqr, PaymentVerificationService $verificationService, LoyaltyService $loyalty)
     {
         $this->khqr = $khqr;
         $this->verificationService = $verificationService;
+        $this->loyalty = $loyalty;
     }
 
     public function index(Request $request)
@@ -107,11 +110,14 @@ class PaymentController extends Controller
                 }
             }
 
+            $loyaltyResult = $this->loyalty->awardForPaidOrder($payment->order);
+
             return response()->json([
                 'status' => 'paid',
                 'verification_status' => $payment->verification_status,
                 'message' => 'Payment successful and verified.',
                 'verified_at' => $payment->verified_at,
+                'loyalty_points_earned' => $loyaltyResult['points'],
             ]);
         }
 
@@ -163,7 +169,13 @@ class PaymentController extends Controller
                 ], 422);
             }
 
-            $payment->order()->update(['status' => 'paid']);
+            $order = $payment->order;
+            if ($order) {
+                $order->status = 'paid';
+                $order->save();
+            }
+
+            $loyaltyResult = $this->loyalty->awardForPaidOrder($order);
 
             return response()->json([
                 'status' => 'paid',
@@ -171,6 +183,7 @@ class PaymentController extends Controller
                 'message' => 'Payment successful and verified.',
                 'transaction_id' => $payment->transaction_id,
                 'verified_at' => $payment->verified_at,
+                'loyalty_points_earned' => $loyaltyResult['points'],
             ]);
         }
 
@@ -236,6 +249,7 @@ class PaymentController extends Controller
         if ($payment) {
             $payment->update(['status' => 'paid', 'transaction_id' => 'SIM-' . $payment->id, 'meta' => array_merge($payment->meta ?? [], ['confirmed_at' => now()->toDateTimeString()])]);
             $order->update(['status' => 'paid']);
+            $this->loyalty->awardForPaidOrder($order->fresh());
         }
 
         return redirect()

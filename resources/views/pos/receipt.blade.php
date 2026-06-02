@@ -260,6 +260,9 @@
             'cancelled', 'failed' => 'badge-cancelled',
             default => '',
         };
+        $subtotalAmount = $order->subtotal_amount ?? ($order->total_amount + $order->discount_amount);
+        $promoDiscountAmount = $order->promo_discount_amount ?? ($order->promo ? $order->discount_amount : 0);
+        $loyaltyDiscountAmount = $order->loyalty_discount_amount ?? 0;
     @endphp
 
     <!-- NEW PAGE HEADER DESIGN -->
@@ -401,23 +404,37 @@
         <div class="col-lg-4">
             <!-- Summary Card (Gradient Modern) -->
             <div class="summary-card">
-                <div class="summary-label">Total Amount</div>
+                <div class="summary-label">Final Total</div>
                 <div class="summary-amount">${{ number_format($order->total_amount, 2) }}</div>
-                @if($order->discount_amount > 0)
-                    <div
-                        style="background: rgba(16, 185, 129, .1); padding: .65rem; border-radius: .5rem; margin: 1rem 0; text-align: center;">
-                        <div class="small text-success">Discount Applied</div>
-                        <div class="fw-bold text-success">-${{ number_format($order->discount_amount, 2) }}</div>
-                        @if($order->promo)
-                            <div class="small text-muted">Code: {{ $order->promo->code }}</div>
-                        @endif
+                <div class="d-flex justify-content-between small opacity-75 mt-3">
+                    <span>Subtotal</span>
+                    <span>${{ number_format($subtotalAmount, 2) }}</span>
+                </div>
+                @if($promoDiscountAmount > 0)
+                    <div class="d-flex justify-content-between small mt-2">
+                        <span>Promo @if($order->promo)({{ $order->promo->code }})@endif</span>
+                        <span>-${{ number_format($promoDiscountAmount, 2) }}</span>
                     </div>
-                    <hr class="my-3 opacity-25">
+                @endif
+                @if($loyaltyDiscountAmount > 0)
+                    <div class="d-flex justify-content-between small mt-2">
+                        <span>Loyalty {{ $order->loyalty_points_redeemed }} pts</span>
+                        <span>-${{ number_format($loyaltyDiscountAmount, 2) }}</span>
+                    </div>
+                @endif
+                @if($order->customer_name || $order->customer_phone)
                     <div
-                        style="background: rgba(37, 99, 235, .1); padding: .75rem; border-radius: .5rem; margin-bottom: 1rem; text-align: center;">
-                        <div class="small text-muted">Final Total After Discount</div>
-                        <div style="font-size: 1.75rem; font-weight: 800; color: #059669;">
-                            ${{ number_format($order->total_amount - $order->discount_amount, 2) }}</div>
+                        style="background: rgba(255, 255, 255, .14); padding: .75rem; border-radius: .5rem; margin: 1rem 0;">
+                        <div class="small opacity-75">Customer</div>
+                        <div class="fw-bold">{{ $order->customer_name ?: 'Walk-in Customer' }}</div>
+                        <div class="small opacity-75">{{ $order->customer_phone }}</div>
+                    </div>
+                @endif
+                @if($order->loyalty_points_earned)
+                    <div
+                        style="background: rgba(16, 185, 129, .16); padding: .65rem; border-radius: .5rem; margin-top: 1rem; text-align: center;">
+                        <div class="small">Loyalty earned</div>
+                        <div class="fw-bold">+{{ $order->loyalty_points_earned }} points</div>
                     </div>
                 @endif
                 <hr class="my-3 opacity-25">
@@ -594,7 +611,9 @@
                     if (data.status === 'paid') {
                         clearExpiryTimer();
                         clearStatusTimer();
-                        showPaymentSuccess(data.message || 'Payment successful.');
+                        const points = Number(data.loyalty_points_earned || 0);
+                        const loyaltyMessage = points > 0 ? ' Earned ' + points + ' loyalty points.' : '';
+                        showPaymentSuccess((data.message || 'Payment successful.') + loyaltyMessage);
                         setTimeout(function () {
                             window.location.reload();
                         }, 1400);

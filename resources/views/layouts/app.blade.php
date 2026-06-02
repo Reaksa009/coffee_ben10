@@ -417,6 +417,8 @@
                                 href="{{ route('products.index') }}"><i class="bi bi-box-seam"></i> Products</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('orders.*') ? 'active' : '' }}"
                                 href="{{ route('orders.index') }}"><i class="bi bi-receipt"></i> Orders</a></li>
+                        <li class="nav-item"><a class="nav-link {{ Request::routeIs('customers.*') ? 'active' : '' }}"
+                                href="{{ route('customers.index') }}"><i class="bi bi-people"></i> Customers</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('payments.*') ? 'active' : '' }}"
                                 href="{{ route('payments.index') }}"><i class="bi bi-credit-card"></i> Payments</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('promos.*') ? 'active' : '' }}"
@@ -467,6 +469,10 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::routeIs('orders.*') ? 'active' : '' }}"
                                     href="{{ route('orders.index') }}"><i class="bi bi-receipt"></i> Orders</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::routeIs('customers.*') ? 'active' : '' }}"
+                                    href="{{ route('customers.index') }}"><i class="bi bi-people"></i> Customers</a>
                             </li>
                         {{-- <li class="nav-item">
                             <a class="nav-link {{ Request::routeIs('project.overview') ? 'active' : '' }}"

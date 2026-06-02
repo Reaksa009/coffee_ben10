@@ -36,6 +36,7 @@
                     <thead>
                         <tr>
                             <th>Order</th>
+                            <th>Customer</th>
                             <th>Items</th>
                             <th>Total</th>
                             <th>Status</th>
@@ -47,6 +48,14 @@
                         @foreach($orders as $order)
                             <tr>
                                 <td class="fw-semibold">#{{ $order->id }}</td>
+                                <td>
+                                    @if($order->customer)
+                                        <div class="fw-semibold">{{ $order->customer->name ?: 'Walk-in Customer' }}</div>
+                                        <div class="small text-muted">{{ $order->customer->phone }}</div>
+                                    @else
+                                        <span class="text-muted">Walk-in</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="fw-semibold">{{ $order->items_count }} items</div>
                                     <div class="small text-muted">

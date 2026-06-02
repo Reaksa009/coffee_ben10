@@ -15,6 +15,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\CustomerController;
 
 Route::get('/', function () {
     return auth()->check()
@@ -41,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pos/checkout', [POSController::class, 'checkout'])->name('pos.checkout');
     Route::post('/pos/checkout', [POSController::class, 'placeOrder'])->name('pos.place');
     Route::post('/pos/apply-promo', [POSController::class, 'applyPromo'])->name('pos.apply-promo');
+    Route::get('/pos/customers/lookup', [POSController::class, 'lookupCustomer'])->name('pos.customers.lookup');
     Route::get('/pos/receipt/{id}', [POSController::class, 'receipt'])->name('pos.receipt');
     Route::get('/products/{product}/image', [ProductController::class, 'image'])->name('products.image');
 
@@ -60,6 +62,9 @@ Route::middleware('auth')->group(function () {
 
         // Orders (admin)
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
+
+        // Customers and loyalty points
+        Route::resource('customers', CustomerController::class)->only(['index', 'show']);
 
         // Promos
         Route::resource('promos', PromoController::class);

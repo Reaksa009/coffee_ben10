@@ -73,6 +73,34 @@
             <section class="app-card p-4 mb-4">
                 <div class="text-muted small">Order Total</div>
                 <div class="display-6 fw-bold mb-3">${{ number_format($order->total_amount, 2) }}</div>
+                @if($order->customer)
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted">Customer</span>
+                        <span class="text-end">
+                            <span class="fw-semibold d-block">{{ $order->customer->name ?: 'Walk-in Customer' }}</span>
+                            <span class="small text-muted">{{ $order->customer->phone }}</span>
+                        </span>
+                    </div>
+                @endif
+                @if($order->discount_amount > 0)
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Discount</span>
+                        <span class="text-success">-${{ number_format($order->discount_amount, 2) }}</span>
+                    </div>
+                @endif
+                @if($order->loyalty_points_redeemed || $order->loyalty_points_earned)
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Loyalty</span>
+                        <span class="text-end small">
+                            @if($order->loyalty_points_redeemed)
+                                <span class="text-success d-block">Redeemed {{ $order->loyalty_points_redeemed }} pts</span>
+                            @endif
+                            @if($order->loyalty_points_earned)
+                                <span class="text-primary d-block">Earned {{ $order->loyalty_points_earned }} pts</span>
+                            @endif
+                        </span>
+                    </div>
+                @endif
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted">Status</span>
                     <span class="badge text-bg-{{ $statusClass }}">{{ ucfirst($order->status) }}</span>

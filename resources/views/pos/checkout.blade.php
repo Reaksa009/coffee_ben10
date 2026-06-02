@@ -249,6 +249,32 @@
                         <strong>KHQR after order</strong>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Customer Loyalty</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                            <input type="text" name="customer_phone" id="customer-phone" form="checkout-form"
+                                class="form-control" placeholder="Customer phone"
+                                value="{{ old('customer_phone') }}">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" name="customer_name" id="customer-name" form="checkout-form"
+                                class="form-control" placeholder="Customer name"
+                                value="{{ old('customer_name') }}">
+                        </div>
+                        <div id="loyalty-message" class="small text-muted">
+                            Earn {{ $pointsPerDollar }} points per $1 paid. 1 point = ${{ number_format($pointValue, 2) }} discount.
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" value="1" id="redeem-points"
+                                name="redeem_points" form="checkout-form" disabled>
+                            <label class="form-check-label small" for="redeem-points" id="redeem-points-label">
+                                Redeem available points
+                            </label>
+                        </div>
+                    </div>
+
                     @if($discountAmount > 0)
                         <div class="summary-row"
                             style="background: rgba(16, 185, 129, .1); padding: .65rem; border-radius: .5rem; margin-bottom: 1rem;">
@@ -339,5 +365,72 @@
                 document.getElementById('apply-promo-btn').click();
             }
         });
+
+        const customerPhoneInput = document.getElementById('customer-phone');
+        const customerNameInput = document.getElementById('customer-name');
+        const loyaltyMessage = document.getElementById('loyalty-message');
+        const redeemCheckbox = document.getElementById('redeem-points');
+        const redeemLabel = document.getElementById('redeem-points-label');
+        let loyaltyLookupTimer = null;
+
+        function resetLoyaltyRedeem(message) {
+            redeemCheckbox.checked = false;
+            redeemCheckbox.disabled = true;
+            redeemLabel.textContent = 'Redeem available points';
+            loyaltyMessage.className = 'small text-muted';
+            loyaltyMessage.textContent = message || 'Enter a customer phone to check loyalty points.';
+        }
+
+        async function lookupCustomer() {
+            const phone = customerPhoneInput.value.trim();
+
+            if (!phone) {
+                resetLoyaltyRedeem('Earn {{ $pointsPerDollar }} points per $1 paid. 1 point = ${{ number_format($pointValue, 2) }} discount.');
+                return;
+            }
+
+            loyaltyMessage.className = 'small text-muted';
+            loyaltyMessage.textContent = 'Checking loyalty points...';
+
+            try {
+                const url = new URL(@json(route('pos.customers.lookup')), window.location.origin);
+                url.searchParams.set('phone', phone);
+                url.searchParams.set('amount', @json($finalTotal));
+
+                const response = await fetch(url.toString());
+                const data = await response.json();
+
+                if (data.found) {
+                    if (data.name && !customerNameInput.value.trim()) {
+                        customerNameInput.value = data.name;
+                    }
+
+                    loyaltyMessage.className = 'small text-success';
+                    loyaltyMessage.textContent = data.name
+                        ? data.name + ' has ' + data.points_balance + ' points.'
+                        : 'Customer has ' + data.points_balance + ' points.';
+
+                    if (Number(data.redeemable_discount) > 0) {
+                        redeemCheckbox.disabled = false;
+                        redeemLabel.textContent = 'Redeem ' + data.points_balance + ' points, up to $' + Number(data.redeemable_discount).toFixed(2);
+                    } else {
+                        resetLoyaltyRedeem('Customer found, but no redeemable points yet.');
+                    }
+                } else {
+                    resetLoyaltyRedeem(data.message || 'New customer. Points will start after payment.');
+                }
+            } catch (error) {
+                resetLoyaltyRedeem('Unable to check loyalty points right now.');
+            }
+        }
+
+        customerPhoneInput.addEventListener('input', function () {
+            clearTimeout(loyaltyLookupTimer);
+            loyaltyLookupTimer = setTimeout(lookupCustomer, 450);
+        });
+
+        if (customerPhoneInput.value.trim()) {
+            lookupCustomer();
+        }
     </script>
 @endsection
