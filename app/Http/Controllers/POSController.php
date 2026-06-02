@@ -46,7 +46,7 @@ class POSController extends Controller
         $size = $validated['size'];
         $price = $this->priceForSize($product, $size);
 
-        if ($quantity > $product->stock) {
+        if ($quantity > (int) $product->stock) {
             return redirect()->back()->with('error', 'Insufficient stock for ' . $product->name);
         }
 
@@ -144,12 +144,15 @@ class POSController extends Controller
             $order = DB::transaction(function () use ($cart, $total, $finalTotal, $promo, $discountAmount) {
                 foreach ($cart as $item) {
                     $product = Product::whereKey($item['product_id'])->firstOrFail();
+                    $quantity = max(1, (int) $item['quantity']);
+                    $availableStock = (int) $product->stock;
 
-                    if ($product->stock < $item['quantity']) {
+                    if ($availableStock < $quantity) {
                         throw new \RuntimeException('Insufficient stock for ' . $product->name);
                     }
 
-                    $product->decrement('stock', (int) $item['quantity']);
+                    $product->stock = $availableStock - $quantity;
+                    $product->save();
                 }
 
                 $order = Order::create([
@@ -174,7 +177,8 @@ class POSController extends Controller
 
                 // Increment promo usage
                 if ($promo) {
-                    $promo->increment('times_used');
+                    $promo->times_used = (int) $promo->times_used + 1;
+                    $promo->save();
                 }
 
                 return $order;

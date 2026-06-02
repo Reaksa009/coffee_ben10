@@ -120,8 +120,8 @@
             <input type="file" name="image" class="form-control">
 
             <div class="mt-3">
-                @if(!empty($product->image))
-                    <img src="{{ asset('storage/' . $product->image) }}" class="img-fluid rounded border"
+                @if(!empty($product) && !empty($product->image_url))
+                    <img src="{{ $product->image_url }}" class="img-fluid rounded border"
                         alt="{{ $product->name }}">
                 @else
                     <div class="border rounded bg-light text-muted d-flex align-items-center justify-content-center"

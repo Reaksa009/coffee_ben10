@@ -23,6 +23,9 @@ class Product extends Model
         'large_price',
         'stock',
         'image',
+        'image_data',
+        'image_mime',
+        'image_name',
     ];
 
     protected $casts = [
@@ -40,6 +43,52 @@ class Product extends Model
 
     public function getImageUrlAttribute()
     {
-        return $this->image ? asset('storage/' . $this->image) : null;
+        if ($this->image_data && $this->image_mime) {
+            return route('products.image', ['product' => $this]);
+        }
+
+        if (! $this->image) {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'data:') || filter_var($this->image, FILTER_VALIDATE_URL)) {
+            return $this->image;
+        }
+
+        return asset('storage/' . $this->image);
+    }
+
+    public function setPriceAttribute($value): void
+    {
+        $this->attributes['price'] = (float) $value;
+    }
+
+    public function setSmallPriceAttribute($value): void
+    {
+        $this->attributes['small_price'] = $this->nullableFloat($value);
+    }
+
+    public function setMediumPriceAttribute($value): void
+    {
+        $this->attributes['medium_price'] = $this->nullableFloat($value);
+    }
+
+    public function setLargePriceAttribute($value): void
+    {
+        $this->attributes['large_price'] = $this->nullableFloat($value);
+    }
+
+    public function setStockAttribute($value): void
+    {
+        $this->attributes['stock'] = max(0, (int) $value);
+    }
+
+    private function nullableFloat($value): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return (float) $value;
     }
 }

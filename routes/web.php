@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/pos/checkout', [POSController::class, 'placeOrder'])->name('pos.place');
     Route::post('/pos/apply-promo', [POSController::class, 'applyPromo'])->name('pos.apply-promo');
     Route::get('/pos/receipt/{id}', [POSController::class, 'receipt'])->name('pos.receipt');
+    Route::get('/products/{product}/image', [ProductController::class, 'image'])->name('products.image');
 
     // Payment endpoints (KHQR)
     Route::get('/pos/payment/khqr/create/{order}', [PaymentController::class, 'createKHQRPayment'])->name('payment.khqr.create');

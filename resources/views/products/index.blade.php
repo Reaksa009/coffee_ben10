@@ -176,8 +176,8 @@
                     @foreach($categoryProducts as $product)
                         <div class="col-sm-6 col-xl-3">
                             <div class="product-card product-menu-card app-card h-100 overflow-hidden">
-                                @if($product->image)
-                                    <img src="{{ asset('storage/' . $product->image) }}" class="product-thumb" alt="{{ $product->name }}">
+                                @if($product->image_url)
+                                    <img src="{{ $product->image_url }}" class="product-thumb" alt="{{ $product->name }}">
                                 @else
                                     <div class="product-thumb placeholder-thumb">
                                         <i class="bi bi-cup-hot"></i>
