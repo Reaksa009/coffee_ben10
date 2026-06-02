@@ -4,13 +4,16 @@ Laravel POS project for Coffee Ben10 with product, order, payment, promo, report
 
 ## Local Setup
 
+Install the PHP MongoDB extension for your local PHP/XAMPP version first.
+
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate --seed
 php artisan serve
 ```
+
+Set `DB_URI` in `.env` to your MongoDB Atlas connection string. MongoDB does not use the SQL migrations in this project.
 
 ## Vercel Deployment
 
@@ -21,16 +24,13 @@ Set these environment variables in the Vercel project before deploying:
 ```text
 APP_KEY=base64:...
 APP_URL=https://coffee-ben10.vercel.app
-DB_CONNECTION=mysql
-DB_HOST=...
-DB_PORT=3306
-DB_DATABASE=...
-DB_USERNAME=...
-DB_PASSWORD=...
+DB_CONNECTION=mongodb
+DB_URI=mongodb+srv://...
+DB_DATABASE=coffee_ben10
 KHQR_BAKONG_ACCOUNT_ID=...
 KHQR_ACCOUNT_NAME=...
 KHQR_MERCHANT_CITY=PHNOM PENH
 KHQR_CURRENCY=USD
 ```
 
-For Vercel, use an external MySQL or PostgreSQL database. Do not use the local `.env` file or local SQLite database for production deployment.
+If you connect MongoDB Atlas through Vercel Marketplace, populate `MONGODB_URI`; the app falls back to that value when `DB_URI` is not set.

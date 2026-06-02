@@ -3,11 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Promo extends Model
 {
     use HasFactory;
+
+    protected $attributes = [
+        'discount_type' => 'percentage',
+        'times_used' => 0,
+        'active' => true,
+    ];
 
     protected $fillable = [
         'code',
@@ -23,6 +29,10 @@ class Promo extends Model
     ];
 
     protected $casts = [
+        'discount_value' => 'float',
+        'usage_limit' => 'integer',
+        'times_used' => 'integer',
+        'min_order_amount' => 'float',
         'valid_from' => 'datetime',
         'valid_until' => 'datetime',
         'active' => 'boolean',

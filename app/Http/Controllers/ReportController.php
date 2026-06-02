@@ -17,9 +17,9 @@ class ReportController extends Controller
         $thisMonth = Carbon::now()->startOfMonth();
 
         $todayStats = [
-            'orders' => Order::whereDate('created_at', $today)->count(),
-            'revenue' => Order::where('status', 'paid')->whereDate('created_at', $today)->sum('total_amount'),
-            'discounts' => Order::whereDate('created_at', $today)->sum('discount_amount'),
+            'orders' => Order::whereBetween('created_at', [$today, $today->copy()->endOfDay()])->count(),
+            'revenue' => Order::where('status', 'paid')->whereBetween('created_at', [$today, $today->copy()->endOfDay()])->sum('total_amount'),
+            'discounts' => Order::whereBetween('created_at', [$today, $today->copy()->endOfDay()])->sum('discount_amount'),
         ];
 
         $monthStats = [
@@ -29,9 +29,16 @@ class ReportController extends Controller
         ];
 
         $paymentMethods = Payment::where('created_at', '>=', $today)
-            ->groupBy('payment_method')
-            ->selectRaw('payment_method, count(*) as count, sum(amount) as total')
-            ->get();
+            ->get()
+            ->groupBy(fn ($payment) => $payment->payment_method ?: 'unknown')
+            ->map(function ($payments, $method) {
+                return (object) [
+                    'payment_method' => $method,
+                    'count' => $payments->count(),
+                    'total' => $payments->sum('amount'),
+                ];
+            })
+            ->values();
 
         return view('reports.index', compact('todayStats', 'monthStats', 'paymentMethods'));
     }
@@ -105,7 +112,7 @@ class ReportController extends Controller
             $csv = "Date,Order ID,Amount,Discount,Payment Method,Status\n";
             foreach ($orders as $order) {
                 $csv .= sprintf(
-                    "%s,%d,%.2f,%.2f,%s,%s\n",
+                    "%s,%s,%.2f,%.2f,%s,%s\n",
                     $order->created_at->format('Y-m-d H:i'),
                     $order->id,
                     $order->total_amount,

@@ -21,7 +21,8 @@ class DashboardController extends Controller
         $recentPayments = Payment::with('order')->orderBy('created_at', 'desc')->limit(8)->get();
         $salesChart = collect(range(6, 0))->map(function ($daysAgo) {
             $date = Carbon::today()->subDays($daysAgo);
-            $orders = Order::where('status', 'paid')->whereDate('created_at', $date);
+            $orders = Order::where('status', 'paid')
+                ->whereBetween('created_at', [$date->copy()->startOfDay(), $date->copy()->endOfDay()]);
 
             return [
                 'label' => $date->format('D'),

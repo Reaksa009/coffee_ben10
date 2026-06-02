@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\OrderItem;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Product extends Model
 {
@@ -23,6 +23,14 @@ class Product extends Model
         'large_price',
         'stock',
         'image',
+    ];
+
+    protected $casts = [
+        'price' => 'float',
+        'small_price' => 'float',
+        'medium_price' => 'float',
+        'large_price' => 'float',
+        'stock' => 'integer',
     ];
 
     public function orderItems()

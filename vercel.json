@@ -47,6 +47,8 @@
         "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp/views",
         "LOG_CHANNEL": "stderr",
+        "DB_CONNECTION": "mongodb",
+        "DB_DATABASE": "coffee_ben10",
         "SESSION_DRIVER": "cookie",
         "SESSION_SECURE_COOKIE": "true",
         "CACHE_STORE": "array",

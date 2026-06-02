@@ -34,6 +34,9 @@ class PromoController extends Controller
             'active' => ['boolean'],
         ]);
 
+        $data['code'] = strtoupper($data['code']);
+        $data['active'] = $request->boolean('active');
+
         Promo::create($data);
 
         return redirect()->route('promos.index')
@@ -58,6 +61,9 @@ class PromoController extends Controller
             'valid_until' => ['nullable', 'date', 'after:valid_from'],
             'active' => ['boolean'],
         ]);
+
+        $data['code'] = strtoupper($data['code']);
+        $data['active'] = $request->boolean('active');
 
         $promo->update($data);
 

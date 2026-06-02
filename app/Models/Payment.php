@@ -3,11 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Payment extends Model
 {
     use HasFactory;
+
+    protected $attributes = [
+        'payment_method' => 'khqr',
+        'status' => 'pending',
+        'verification_status' => 'pending',
+    ];
 
     protected $fillable = [
         'order_id',
@@ -23,6 +29,7 @@ class Payment extends Model
     ];
 
     protected $casts = [
+        'amount' => 'float',
         'meta' => 'array',
         'verified_at' => 'datetime',
     ];

@@ -143,13 +143,13 @@ class POSController extends Controller
         try {
             $order = DB::transaction(function () use ($cart, $total, $finalTotal, $promo, $discountAmount) {
                 foreach ($cart as $item) {
-                    $product = Product::whereKey($item['product_id'])->lockForUpdate()->firstOrFail();
+                    $product = Product::whereKey($item['product_id'])->firstOrFail();
 
                     if ($product->stock < $item['quantity']) {
                         throw new \RuntimeException('Insufficient stock for ' . $product->name);
                     }
 
-                    $product->decrement('stock', $item['quantity']);
+                    $product->decrement('stock', (int) $item['quantity']);
                 }
 
                 $order = Order::create([
@@ -178,7 +178,7 @@ class POSController extends Controller
                 }
 
                 return $order;
-            });
+            }, 3);
         } catch (\RuntimeException $exception) {
             return redirect()->route('pos.index')->with('error', $exception->getMessage());
         }

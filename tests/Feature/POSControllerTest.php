@@ -2,14 +2,24 @@
 
 namespace Tests\Feature;
 
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Promo;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class POSControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        foreach ([User::class, Product::class, Order::class, OrderItem::class, Payment::class, Promo::class] as $model) {
+            $model::query()->delete();
+        }
+    }
 
     public function test_place_order_reduces_product_stock(): void
     {
@@ -28,6 +38,7 @@ class POSControllerTest extends TestCase
                     'name' => $product->name,
                     'price' => $product->price,
                     'quantity' => 2,
+                    'size' => 'Medium',
                 ]],
             ])
             ->post(route('pos.place'));
@@ -57,6 +68,7 @@ class POSControllerTest extends TestCase
                     'name' => $product->name,
                     'price' => $product->price,
                     'quantity' => 2,
+                    'size' => 'Medium',
                 ]],
             ])
             ->post(route('pos.place'));
