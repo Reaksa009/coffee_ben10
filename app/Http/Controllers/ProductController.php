@@ -11,13 +11,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $categories = Product::query()
-            ->whereNotNull('category')
-            ->where('category', '!=', '')
-            ->distinct()
-            ->orderBy('category')
-            ->pluck('category');
-
+        $categories = Product::categoryOptions();
         $selectedCategory = request('category');
         $products = Product::query()
             ->when($selectedCategory, fn ($query) => $query->where('category', $selectedCategory))
@@ -25,7 +19,7 @@ class ProductController extends Controller
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
-        $productsByCategory = $products->getCollection()->groupBy(fn ($product) => $product->category ?: 'Uncategorized');
+        $productsByCategory = $products->getCollection()->groupBy(fn ($product) => trim((string) $product->category) ?: 'Uncategorized');
 
         return view('products.index', compact('products', 'productsByCategory', 'categories', 'selectedCategory'));
     }

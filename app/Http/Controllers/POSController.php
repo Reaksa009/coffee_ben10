@@ -17,20 +17,14 @@ class POSController extends Controller
 
     public function index()
     {
-        $categories = Product::query()
-            ->whereNotNull('category')
-            ->where('category', '!=', '')
-            ->distinct()
-            ->orderBy('category')
-            ->pluck('category');
-
+        $categories = Product::categoryOptions();
         $selectedCategory = request('category');
         $products = Product::query()
             ->when($selectedCategory, fn ($query) => $query->where('category', $selectedCategory))
             ->orderBy('category')
             ->orderBy('name')
             ->get();
-        $productsByCategory = $products->groupBy(fn ($product) => $product->category ?: 'Uncategorized');
+        $productsByCategory = $products->groupBy(fn ($product) => trim((string) $product->category) ?: 'Uncategorized');
 
         return view('pos.index', compact('products', 'productsByCategory', 'categories', 'selectedCategory'));
     }

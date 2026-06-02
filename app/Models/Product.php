@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use MongoDB\Laravel\Eloquent\Model;
 
 class Product extends Model
@@ -41,6 +42,19 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public static function categoryOptions(): Collection
+    {
+        return static::query()
+            ->whereNotNull('category')
+            ->get(['category'])
+            ->pluck('category')
+            ->map(fn ($category) => trim((string) $category))
+            ->filter()
+            ->unique(fn ($category) => strtolower($category))
+            ->sortBy(fn ($category) => strtolower($category))
+            ->values();
+    }
+
     public function getImageUrlAttribute()
     {
         if ($this->image_data && $this->image_mime) {
@@ -61,6 +75,13 @@ class Product extends Model
     public function setPriceAttribute($value): void
     {
         $this->attributes['price'] = (float) $value;
+    }
+
+    public function setCategoryAttribute($value): void
+    {
+        $category = trim((string) $value);
+
+        $this->attributes['category'] = $category === '' ? null : $category;
     }
 
     public function setSmallPriceAttribute($value): void

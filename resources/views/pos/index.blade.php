@@ -198,6 +198,20 @@
         </section>
     @endif
 
+    @if($categories->isNotEmpty() || $selectedCategory)
+        <div class="category-filter">
+            <a href="{{ route('pos.index') }}" class="btn btn-sm {{ $selectedCategory ? 'btn-outline-secondary' : 'btn-primary' }}">
+                All
+            </a>
+            @foreach($categories as $category)
+                <a href="{{ route('pos.index', ['category' => $category]) }}"
+                    class="btn btn-sm {{ $selectedCategory === $category ? 'btn-primary' : 'btn-outline-secondary' }}">
+                    {{ $category }}
+                </a>
+            @endforeach
+        </div>
+    @endif
+
     @if($products->isEmpty())
         <div class="app-card">
             <div class="empty-state">No products available.</div>
@@ -209,18 +223,6 @@
                 <p class="text-muted mb-0">Choose a coffee, snack, or sweet add-on.</p>
             </div>
             <span class="badge text-bg-light border">{{ $products->count() }} products</span>
-        </div>
-
-        <div class="category-filter">
-            <a href="{{ route('pos.index') }}" class="btn btn-sm {{ $selectedCategory ? 'btn-outline-secondary' : 'btn-primary' }}">
-                All
-            </a>
-            @foreach($categories as $category)
-                <a href="{{ route('pos.index', ['category' => $category]) }}"
-                    class="btn btn-sm {{ $selectedCategory === $category ? 'btn-primary' : 'btn-outline-secondary' }}">
-                    {{ $category }}
-                </a>
-            @endforeach
         </div>
 
         @foreach($productsByCategory as $categoryName => $categoryProducts)
