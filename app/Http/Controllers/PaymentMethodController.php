@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\TelegramNotificationService;
 
 class PaymentMethodController extends Controller
 {
+    public function __construct(private TelegramNotificationService $telegram)
+    {
+    }
+
     public function process(Request $request)
     {
         $orderId = $request->query('order');
@@ -48,6 +53,7 @@ class PaymentMethodController extends Controller
         ]);
 
         $order->update(['status' => 'paid', 'payment_method' => 'cash']);
+        $this->sendTelegramAlertOnce($payment->fresh());
 
         return redirect()
             ->route('pos.receipt', ['id' => $order->id])
@@ -78,6 +84,7 @@ class PaymentMethodController extends Controller
         ]);
 
         $order->update(['status' => 'paid', 'payment_method' => 'card']);
+        $this->sendTelegramAlertOnce($payment->fresh());
 
         return redirect()
             ->route('pos.receipt', ['id' => $order->id])
@@ -108,9 +115,30 @@ class PaymentMethodController extends Controller
         ]);
 
         $order->update(['status' => 'paid', 'payment_method' => 'wallet']);
+        $this->sendTelegramAlertOnce($payment->fresh());
 
         return redirect()
             ->route('pos.receipt', ['id' => $order->id])
             ->with('success', 'Wallet payment processed successfully.');
+    }
+
+    private function sendTelegramAlertOnce(Payment $payment): void
+    {
+        $payment->loadMissing('order.items.product');
+
+        $meta = $payment->meta ?? [];
+        if (isset($meta['telegram_alerted_at'])) {
+            return;
+        }
+
+        if (! $this->telegram->sendPaymentSuccess($payment)) {
+            return;
+        }
+
+        $payment->forceFill([
+            'meta' => array_merge($meta, [
+                'telegram_alerted_at' => now()->toDateTimeString(),
+            ]),
+        ])->save();
     }
 }
