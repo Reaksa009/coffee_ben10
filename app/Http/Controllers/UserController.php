@@ -13,13 +13,17 @@ class UserController extends Controller
 {
     public function index(): View
     {
-        $users = User::query()
-            ->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'manager' THEN 2 ELSE 3 END")
-            ->orderBy('name')
-            ->paginate(15);
+        $users = User::query();
+
+        if (config('database.default') === 'mongodb') {
+            $users->orderBy('role')->orderBy('name');
+        } else {
+            $users->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'manager' THEN 2 ELSE 3 END")
+                ->orderBy('name');
+        }
 
         return view('users.index', [
-            'users' => $users,
+            'users' => $users->paginate(15),
             'roles' => $this->roles(),
         ]);
     }

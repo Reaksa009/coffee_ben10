@@ -318,8 +318,12 @@ class POSController extends Controller
 
     private function nextDailyOrderNumber(string $orderDate): int
     {
-        return ((int) Order::where('order_date', $orderDate)
-            ->lockForUpdate()
-            ->max('daily_order_number')) + 1;
+        $query = Order::where('order_date', $orderDate);
+
+        if (config('database.default') !== 'mongodb') {
+            $query->lockForUpdate();
+        }
+
+        return ((int) $query->max('daily_order_number')) + 1;
     }
 }
