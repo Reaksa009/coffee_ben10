@@ -114,6 +114,7 @@
             margin-bottom: 1.35rem;
             font-weight: 800;
             color: #111827;
+            text-decoration: none;
         }
 
         .auth-form-box .form-control {
@@ -171,8 +172,11 @@
             <div class="auth-form-pane">
                 <div class="auth-form-box">
                     <div class="auth-brand">
-                        <span class="soft-icon text-primary bg-primary bg-opacity-10"><i class="bi bi-cup-hot fs-4"></i></span>
-                        <span>{{ config('app.name', 'POS') }}</span>
+                        <span class="brand-mark"><i class="bi bi-cup-hot"></i></span>
+                        <span>
+                            <span class="brand-name">Coffee Ben10</span>
+                            <span class="brand-small">Coffee shop POS</span>
+                        </span>
                     </div>
 
                     <h1 class="h4 fw-bold mb-1">Create account</h1>
