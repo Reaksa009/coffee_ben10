@@ -279,6 +279,11 @@
             width: 38px;
         }
 
+        .app-alert-content {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
         .app-alert-success .app-alert-icon {
             background: rgba(16, 185, 129, .12);
             color: #047857;
@@ -300,6 +305,22 @@
             color: var(--muted);
             font-size: .92rem;
             line-height: 1.4;
+        }
+
+        .app-alert-dismiss {
+            align-self: center;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: .5rem;
+            color: var(--ink);
+            flex: 0 0 auto;
+            font-size: .82rem;
+            font-weight: 800;
+            padding: .4rem .7rem;
+        }
+
+        .app-alert-dismiss:hover {
+            background: var(--surface-subtle);
         }
 
         .empty-state {
@@ -635,19 +656,21 @@
                     @if(session('error'))
                         <div class="app-alert app-alert-error" role="alert">
                             <span class="app-alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
-                            <span>
+                            <span class="app-alert-content">
                                 <span class="app-alert-title d-block">Action needed</span>
                                 <span class="app-alert-message">{{ session('error') }}</span>
                             </span>
+                            <button type="button" class="app-alert-dismiss" data-app-alert-dismiss>Done</button>
                         </div>
                     @endif
                     @if(session('success') && ! Request::routeIs('pos.receipt'))
                         <div class="app-alert app-alert-success" role="status">
                             <span class="app-alert-icon"><i class="bi bi-check-circle-fill"></i></span>
-                            <span>
+                            <span class="app-alert-content">
                                 <span class="app-alert-title d-block">Success</span>
                                 <span class="app-alert-message">{{ session('success') }}</span>
                             </span>
+                            <button type="button" class="app-alert-dismiss" data-app-alert-dismiss>Done</button>
                         </div>
                     @endif
 
@@ -664,19 +687,21 @@
             @if(session('error'))
                 <div class="app-alert app-alert-error" role="alert">
                     <span class="app-alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
-                    <span>
+                    <span class="app-alert-content">
                         <span class="app-alert-title d-block">Action needed</span>
                         <span class="app-alert-message">{{ session('error') }}</span>
                     </span>
+                    <button type="button" class="app-alert-dismiss" data-app-alert-dismiss>Done</button>
                 </div>
             @endif
             @if(session('success') && ! Request::routeIs('pos.receipt'))
                 <div class="app-alert app-alert-success" role="status">
                     <span class="app-alert-icon"><i class="bi bi-check-circle-fill"></i></span>
-                    <span>
+                    <span class="app-alert-content">
                         <span class="app-alert-title d-block">Success</span>
                         <span class="app-alert-message">{{ session('success') }}</span>
                     </span>
+                    <button type="button" class="app-alert-dismiss" data-app-alert-dismiss>Done</button>
                 </div>
             @endif
 
@@ -703,6 +728,15 @@
                 form.addEventListener('submit', function (e) {
                     if (!confirm('Are you sure you want to cancel this cart?')) {
                         e.preventDefault();
+                    }
+                });
+            });
+
+            document.querySelectorAll('[data-app-alert-dismiss]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const alert = button.closest('.app-alert');
+                    if (alert) {
+                        alert.remove();
                     }
                 });
             });

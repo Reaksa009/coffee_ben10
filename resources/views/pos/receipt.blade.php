@@ -679,7 +679,7 @@
                     </div>
 
                     <div class="d-grid gap-2 d-sm-flex justify-content-center">
-                        <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">
+                        <button type="button" id="paymentSuccessDoneBtn" class="btn btn-success px-4">
                             <i class="bi bi-check2 me-1"></i> Done
                         </button>
                         @if($order->status === 'paid')
@@ -696,6 +696,34 @@
     <script>
         const shouldAutoPrintReceipt = @json((bool) session('print_receipt') || request()->boolean('print'));
 
+        function cleanupPaymentSuccessBackdrop() {
+            document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+                backdrop.remove();
+            });
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+        }
+
+        function hidePaymentSuccess() {
+            const modalEl = document.getElementById('paymentSuccessModal');
+
+            if (modalEl && window.bootstrap) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                setTimeout(cleanupPaymentSuccessBackdrop, 250);
+                return;
+            }
+
+            if (modalEl) {
+                modalEl.classList.remove('show');
+                modalEl.style.display = 'none';
+                modalEl.setAttribute('aria-hidden', 'true');
+                modalEl.removeAttribute('aria-modal');
+            }
+
+            cleanupPaymentSuccessBackdrop();
+        }
+
         function showPaymentSuccess(message) {
             const messageEl = document.getElementById('paymentSuccessMessage');
             const modalEl = document.getElementById('paymentSuccessModal');
@@ -708,6 +736,19 @@
                 bootstrap.Modal.getOrCreateInstance(modalEl).show();
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const doneButton = document.getElementById('paymentSuccessDoneBtn');
+            const modalEl = document.getElementById('paymentSuccessModal');
+
+            if (doneButton) {
+                doneButton.addEventListener('click', hidePaymentSuccess);
+            }
+
+            if (modalEl) {
+                modalEl.addEventListener('hidden.bs.modal', cleanupPaymentSuccessBackdrop);
+            }
+        });
     </script>
 
     @if(session('success'))
