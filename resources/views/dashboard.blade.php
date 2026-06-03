@@ -9,24 +9,20 @@
             gap: 1rem;
             margin-bottom: 1.25rem;
             padding: 1.35rem;
-            border: 1px solid #e4e9f2;
-            border-radius: .75rem;
-            background:
-                linear-gradient(135deg, rgba(255, 255, 255, .94), rgba(239, 246, 255, .9)),
-                url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1400&q=80');
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 18px 42px rgba(15, 23, 42, .08);
+            border: 1px solid var(--line);
+            border-radius: .5rem;
+            background: #fff;
+            box-shadow: var(--shadow);
         }
 
         .dashboard-title {
-            font-size: clamp(1.75rem, 3vw, 2.45rem);
+            font-size: clamp(1.45rem, 2vw, 1.9rem);
             font-weight: 800;
             margin: 0;
         }
 
         .dashboard-kicker {
-            color: var(--brand);
+            color: var(--accent);
             font-size: .78rem;
             font-weight: 800;
             letter-spacing: .04em;
@@ -40,25 +36,12 @@
         }
 
         .metric-card {
-            border: 1px solid #e4e9f2;
-            border-radius: .75rem;
+            border: 1px solid var(--line);
+            border-radius: .5rem;
             background: #fff;
             padding: 1.1rem;
             height: 100%;
-            box-shadow: 0 14px 30px rgba(15, 23, 42, .06);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .metric-card::after {
-            content: "";
-            position: absolute;
-            right: -28px;
-            top: -28px;
-            width: 92px;
-            height: 92px;
-            border-radius: 999px;
-            background: rgba(37, 99, 235, .08);
+            box-shadow: var(--shadow);
         }
 
         .metric-icon {
@@ -84,10 +67,10 @@
         }
 
         .panel {
-            border: 1px solid #e4e9f2;
-            border-radius: .75rem;
+            border: 1px solid var(--line);
+            border-radius: .5rem;
             background: #fff;
-            box-shadow: 0 14px 30px rgba(15, 23, 42, .06);
+            box-shadow: var(--shadow);
             overflow: hidden;
         }
 
@@ -97,7 +80,7 @@
             justify-content: space-between;
             gap: 1rem;
             padding: 1rem 1.1rem;
-            border-bottom: 1px solid #eef1f4;
+            border-bottom: 1px solid var(--line);
         }
 
         .panel-title {
@@ -141,8 +124,8 @@
             gap: .75rem;
             align-items: center;
             padding: .8rem;
-            border: 1px solid #edf1f7;
-            border-radius: .65rem;
+            border: 1px solid var(--line);
+            border-radius: .5rem;
             background: #fff;
         }
 
@@ -152,8 +135,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: .55rem;
-            color: #0f766e;
+            border-radius: .5rem;
+            color: var(--brand);
             background: rgba(20, 184, 166, .12);
         }
 
@@ -169,8 +152,8 @@
             justify-content: space-between;
             gap: .75rem;
             padding: .75rem;
-            border: 1px solid #edf1f7;
-            border-radius: .6rem;
+            border: 1px solid var(--line);
+            border-radius: .5rem;
         }
 
         .bar-chart {
@@ -192,16 +175,16 @@
             display: flex;
             align-items: end;
             min-height: 190px;
-            border-radius: .65rem;
-            background: linear-gradient(180deg, #f8fafc, #eef2f7);
+            border-radius: .5rem;
+            background: #eef2f7;
             overflow: hidden;
         }
 
         .bar-fill {
             width: 100%;
             min-height: 8px;
-            border-radius: .65rem .65rem 0 0;
-            background: linear-gradient(180deg, #2563eb, #0f766e);
+            border-radius: .5rem .5rem 0 0;
+            background: linear-gradient(180deg, var(--brand), #2563eb);
             transition: height .2s ease;
         }
 
@@ -265,9 +248,9 @@
 
     <div class="dashboard-header">
         <div>
-            <div class="dashboard-kicker">Coffee shop command center</div>
+            <div class="dashboard-kicker">Command Center</div>
             <h1 class="dashboard-title">Good day, {{ auth()->user()->name ?? 'Cashier' }}.</h1>
-            <p class="dashboard-subtitle">Track cups, payments, orders, and low-stock ingredients at a glance.</p>
+            <p class="dashboard-subtitle">Track orders, payments, and stock without leaving the counter.</p>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('pos.index') }}" class="btn btn-primary">

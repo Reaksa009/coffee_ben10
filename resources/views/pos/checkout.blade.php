@@ -9,23 +9,16 @@
             gap: 1rem;
             padding: 1.35rem;
             margin-bottom: 1.25rem;
-            border: 1px solid #e4e9f2;
-            border-radius: .75rem;
-            background:
-                linear-gradient(135deg, rgba(37, 99, 235, .08), rgba(255, 255, 255, .92)),
-                url('https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1200&q=80');
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 14px 36px rgba(15, 23, 42, .08);
+            border: 1px solid var(--line);
+            border-radius: .5rem;
+            background: #fff;
+            box-shadow: var(--shadow);
             overflow: hidden;
             position: relative;
         }
 
         .checkout-hero::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 255, 255, .84);
+            display: none;
         }
 
         .checkout-hero>* {
@@ -34,13 +27,13 @@
         }
 
         .checkout-title {
-            font-size: clamp(1.7rem, 3vw, 2.35rem);
+            font-size: clamp(1.45rem, 2vw, 2rem);
             font-weight: 800;
             margin: 0;
         }
 
         .checkout-kicker {
-            color: var(--brand);
+            color: var(--accent);
             font-size: .78rem;
             font-weight: 800;
             letter-spacing: .04em;
@@ -60,19 +53,19 @@
             gap: .85rem;
             align-items: center;
             padding: .9rem;
-            border: 1px solid #edf1f7;
-            border-radius: .65rem;
+            border: 1px solid var(--line);
+            border-radius: .5rem;
             background: #fff;
         }
 
         .checkout-item-icon {
             width: 46px;
             height: 46px;
-            border-radius: .6rem;
+            border-radius: .5rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #0f766e;
+            color: var(--brand);
             background: rgba(20, 184, 166, .12);
             font-size: 1.35rem;
         }
@@ -105,7 +98,7 @@
         .checkout-summary-head {
             padding: 1.1rem;
             color: #fff;
-            background: linear-gradient(135deg, #2563eb, #0f766e);
+            background: linear-gradient(135deg, var(--brand), #2563eb);
         }
 
         .checkout-total {
@@ -152,9 +145,9 @@
 
     <div class="checkout-hero">
         <div>
-            <div class="checkout-kicker">Coffee checkout</div>
-            <h1 class="checkout-title">Ready to brew this order?</h1>
-            <p class="page-subtitle mb-0">Review each cup, confirm the total, then create the order.</p>
+            <div class="checkout-kicker">Checkout</div>
+            <h1 class="checkout-title">Review the order.</h1>
+            <p class="page-subtitle mb-0">Confirm items, customer details, discounts, and payment flow.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <span class="pos-chip"><i class="bi bi-cup-hot me-1"></i>{{ $totalQuantity }}

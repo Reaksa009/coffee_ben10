@@ -9,18 +9,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
-            --brand: #2563eb;
-            --brand-dark: #1d4ed8;
+            --brand: #0f766e;
+            --brand-dark: #115e59;
+            --accent: #d97706;
             --ink: #111827;
-            --muted: #6b7280;
-            --line: #e5e7eb;
+            --muted: #64748b;
+            --line: #dbe4ef;
             --surface: #ffffff;
-            --soft: #f6f8fb;
+            --soft: #f5f7fb;
+            --surface-subtle: #f8fafc;
+            --shadow: 0 10px 24px rgba(15, 23, 42, .06);
         }
 
         body {
             background: var(--soft);
             color: var(--ink);
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
         }
 
         .navbar {
@@ -28,9 +32,9 @@
         }
 
         .app-topbar {
-            background: rgba(255, 255, 255, .94) !important;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 10px 28px rgba(15, 23, 42, .05);
+            background: rgba(255, 255, 255, .96) !important;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
             min-height: 64px;
         }
 
@@ -46,13 +50,13 @@
         .brand-mark {
             width: 42px;
             height: 42px;
-            border-radius: .75rem;
+            border-radius: .5rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            background: linear-gradient(135deg, #2563eb, #0f766e);
-            box-shadow: 0 10px 24px rgba(37, 99, 235, .24);
+            background: linear-gradient(135deg, var(--brand), #2563eb);
+            box-shadow: 0 10px 22px rgba(15, 118, 110, .22);
         }
 
         .brand-small {
@@ -68,8 +72,8 @@
             align-items: center;
             gap: .6rem;
             padding: .35rem .55rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 999px;
+            border: 1px solid var(--line);
+            border-radius: .5rem;
             background: #fff;
         }
 
@@ -80,13 +84,13 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #0f766e;
+            color: var(--brand);
             background: rgba(20, 184, 166, .12);
             font-weight: 800;
         }
 
         .stat-card {
-            border-radius: .6rem;
+            border-radius: .5rem;
             color: #fff
         }
 
@@ -111,11 +115,8 @@
         .sidebar {
             min-height: 100vh;
             border-right: 1px solid var(--line);
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, .98), rgba(248, 250, 252, .96)),
-                url('https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=700&q=70') !important;
-            background-size: cover !important;
-            background-position: center !important;
+            background: #fff !important;
+            box-shadow: 8px 0 24px rgba(15, 23, 42, .03);
         }
 
         .sidebar .nav-link {
@@ -123,16 +124,21 @@
             color: #374151;
             display: flex;
             gap: .65rem;
-            border-radius: .45rem;
-            margin-bottom: .15rem;
-            padding: .62rem .75rem;
+            border-radius: .5rem;
+            margin-bottom: .2rem;
+            padding: .68rem .75rem;
             font-weight: 650;
         }
 
         .sidebar .nav-link.active {
-            background: rgba(37, 99, 235, .1);
+            background: rgba(15, 118, 110, .1);
             color: var(--brand);
             font-weight: 600;
+        }
+
+        .sidebar .nav-link:hover {
+            background: #f1f5f9;
+            color: var(--ink);
         }
 
         .sidebar .nav-link i {
@@ -141,8 +147,8 @@
 
         .sidebar-profile {
             border: 1px solid #e5e7eb;
-            border-radius: .75rem;
-            background: rgba(255, 255, 255, .82);
+            border-radius: .5rem;
+            background: var(--surface-subtle);
             padding: .8rem;
             margin-bottom: 1rem;
         }
@@ -180,11 +186,13 @@
             align-items: center;
             gap: 1rem;
             margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line);
         }
 
         .page-title {
-            font-size: 1.55rem;
-            font-weight: 700;
+            font-size: 1.45rem;
+            font-weight: 800;
             margin: 0;
         }
 
@@ -197,7 +205,7 @@
             background: var(--surface);
             border: 1px solid var(--line);
             border-radius: .5rem;
-            box-shadow: 0 8px 22px rgba(15, 23, 42, .04);
+            box-shadow: var(--shadow);
         }
 
         .app-card-header {
@@ -206,7 +214,7 @@
             justify-content: space-between;
             gap: 1rem;
             padding: 1rem 1.1rem;
-            border-bottom: 1px solid #eef1f4;
+            border-bottom: 1px solid var(--line);
         }
 
         .app-card-title {
@@ -224,8 +232,8 @@
             font-size: .78rem;
             font-weight: 700;
             text-transform: uppercase;
-            background: #f8fafc;
-            border-bottom: 1px solid #eef1f4;
+            background: var(--surface-subtle);
+            border-bottom: 1px solid var(--line);
         }
 
         .app-table td {
@@ -264,16 +272,42 @@
             border-color: var(--brand-dark);
         }
 
+        .btn-outline-primary {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+
+        .btn-outline-primary:hover,
+        .btn-outline-primary:focus {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff;
+        }
+
+        .text-primary {
+            color: var(--brand) !important;
+        }
+
+        .bg-primary {
+            background-color: var(--brand) !important;
+        }
+
+        .text-bg-primary {
+            background-color: var(--brand) !important;
+            color: #fff !important;
+        }
+
         .pos-hero {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(255, 255, 255, 0.95));
+            background: #fff;
         }
 
         .pos-chip {
             display: inline-flex;
             align-items: center;
             padding: .55rem .8rem;
-            border-radius: 999px;
-            background: rgba(37, 99, 235, 0.08);
+            border-radius: .5rem;
+            border: 1px solid var(--line);
+            background: #fff;
             color: var(--ink);
             font-weight: 600;
         }
@@ -284,8 +318,8 @@
 
         .product-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 18px 28px rgba(15, 23, 42, .08);
-            border-color: rgba(37, 99, 235, 0.2);
+            box-shadow: 0 16px 26px rgba(15, 23, 42, .08);
+            border-color: rgba(15, 118, 110, .25);
         }
 
         .product-price {
@@ -301,7 +335,7 @@
             justify-content: center;
             font-size: 2rem;
             color: var(--muted);
-            background: linear-gradient(180deg, #f8fafc, #eef2ff);
+            background: #eef2f7;
         }
 
         .qty-input {
@@ -323,20 +357,20 @@
 
         .pagination .page-link {
             border: 1px solid #e5e7eb;
-            color: #2563eb;
+            color: var(--brand);
             padding: 0.5rem 0.75rem;
             margin: 0;
         }
 
         .pagination .page-link:hover {
-            background-color: #eff6ff;
-            color: #1d4ed8;
-            border-color: #bfdbfe;
+            background-color: rgba(15, 118, 110, .08);
+            color: var(--brand-dark);
+            border-color: rgba(15, 118, 110, .2);
         }
 
         .pagination .page-item.active .page-link {
-            background-color: #2563eb;
-            border-color: #2563eb;
+            background-color: var(--brand);
+            border-color: var(--brand);
             color: white;
         }
 

@@ -5,24 +5,20 @@
         .pos-cute-hero {
             position: relative;
             overflow: hidden;
-            border: 1px solid #e4e9f2;
-            border-radius: .75rem;
-            background:
-                linear-gradient(135deg, rgba(255, 255, 255, .92), rgba(239, 246, 255, .88)),
-                url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1400&q=80');
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 18px 42px rgba(15, 23, 42, .08);
+            border: 1px solid var(--line);
+            border-radius: .5rem;
+            background: #fff;
+            box-shadow: var(--shadow);
         }
 
         .pos-cute-title {
-            font-size: clamp(1.75rem, 3vw, 2.45rem);
+            font-size: clamp(1.5rem, 2vw, 2rem);
             font-weight: 800;
             margin: 0;
         }
 
         .pos-cute-kicker {
-            color: var(--brand);
+            color: var(--accent);
             font-size: .78rem;
             font-weight: 800;
             letter-spacing: .04em;
@@ -41,8 +37,8 @@
             gap: .75rem;
             align-items: center;
             padding: .75rem;
-            border: 1px solid #edf1f7;
-            border-radius: .6rem;
+            border: 1px solid var(--line);
+            border-radius: .5rem;
             background: #fff;
         }
 
@@ -53,9 +49,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: .55rem;
+            border-radius: .5rem;
             background: rgba(20, 184, 166, .12);
-            color: #0f766e;
+            color: var(--brand);
         }
 
         .pos-menu-head {
@@ -67,8 +63,8 @@
         }
 
         .cute-product-card {
-            border-radius: .75rem;
-            border-color: #e4e9f2;
+            border-radius: .5rem;
+            border-color: var(--line);
         }
 
         .cute-product-card .product-thumb {
@@ -76,9 +72,7 @@
         }
 
         .cute-product-card .placeholder-thumb {
-            background:
-                radial-gradient(circle at 35% 25%, rgba(37, 99, 235, .12), transparent 36%),
-                linear-gradient(180deg, #f8fafc, #eef2ff);
+            background: #eef2f7;
         }
 
         .cute-product-card form {
@@ -108,7 +102,7 @@
             gap: 1rem;
             margin-bottom: .85rem;
             padding-bottom: .55rem;
-            border-bottom: 1px solid #e4e9f2;
+            border-bottom: 1px solid var(--line);
         }
 
         @media (max-width: 767.98px) {
@@ -140,9 +134,9 @@
     <div class="pos-cute-hero p-4 mb-4">
         <div class="row align-items-center g-3">
             <div class="col-lg-8">
-                <div class="pos-cute-kicker mb-2">Coffee Shop POS</div>
-                <h1 class="pos-cute-title mb-2">Take orders with a warmer touch.</h1>
-                <p class="page-subtitle mb-0">Pick drinks, set quantities, and send every cup to checkout fast.</p>
+                <div class="pos-cute-kicker mb-2">New Sale</div>
+                <h1 class="pos-cute-title mb-2">Build the cart fast.</h1>
+                <p class="page-subtitle mb-0">Choose items, set modifiers, and move straight to payment.</p>
             </div>
             <div class="col-lg-4">
                 <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
