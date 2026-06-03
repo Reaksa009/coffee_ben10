@@ -11,9 +11,11 @@ class SupplierController extends Controller
     public function index()
     {
         $suppliers = Supplier::query()
-            ->withCount('purchases')
             ->orderBy('name')
             ->paginate(15);
+        $suppliers->getCollection()->each(function (Supplier $supplier) {
+            $supplier->setAttribute('purchases_count', $supplier->purchases()->count());
+        });
 
         return view('suppliers.index', compact('suppliers'));
     }

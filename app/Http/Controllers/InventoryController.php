@@ -11,9 +11,11 @@ class InventoryController extends Controller
     public function index()
     {
         $items = InventoryItem::query()
-            ->withCount('productIngredients')
             ->orderBy('name')
             ->paginate(20);
+        $items->getCollection()->each(function (InventoryItem $item) {
+            $item->setAttribute('product_ingredients_count', $item->productIngredients()->count());
+        });
 
         $lowStockItems = InventoryItem::query()
             ->orderBy('name')

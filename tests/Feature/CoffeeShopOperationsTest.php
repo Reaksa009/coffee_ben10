@@ -81,6 +81,51 @@ class CoffeeShopOperationsTest extends TestCase
         $this->assertSame(64.0, $beans->fresh()->quantity_on_hand);
     }
 
+    public function test_supplier_and_inventory_pages_show_relationship_counts(): void
+    {
+        $manager = User::factory()->create(['role' => User::ROLE_MANAGER]);
+        $supplier = Supplier::create(['name' => 'Bean Supplier']);
+        $beans = InventoryItem::create([
+            'name' => 'Arabica beans',
+            'unit' => 'g',
+            'quantity_on_hand' => 100,
+            'low_stock_quantity' => 20,
+            'unit_cost' => 0.02,
+        ]);
+        $product = Product::create([
+            'name' => 'Latte',
+            'description' => 'Milk coffee',
+            'price' => 4.50,
+            'stock' => 5,
+        ]);
+
+        ProductIngredient::create([
+            'product_id' => $product->id,
+            'inventory_item_id' => $beans->id,
+            'quantity' => 18,
+            'unit' => 'g',
+        ]);
+        $supplier->purchases()->create([
+            'user_id' => $manager->id,
+            'purchase_date' => '2026-06-03',
+            'total_amount' => 12,
+        ]);
+
+        $this->actingAs($manager)
+            ->get(route('suppliers.index'))
+            ->assertOk()
+            ->assertViewHas('suppliers', function ($suppliers) {
+                return $suppliers->first()->purchases_count === 1;
+            });
+
+        $this->actingAs($manager)
+            ->get(route('inventory.index'))
+            ->assertOk()
+            ->assertViewHas('items', function ($items) {
+                return $items->first()->product_ingredients_count === 1;
+            });
+    }
+
     public function test_manager_can_create_product_without_recipe_rows(): void
     {
         $manager = User::factory()->create(['role' => User::ROLE_MANAGER]);
