@@ -349,6 +349,27 @@
             min-width: 80px;
         }
 
+        .report-chart-body {
+            min-height: 320px;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .report-chart-body.compact {
+            min-height: 260px;
+        }
+
+        .report-chart-body canvas {
+            max-height: 320px;
+            width: 100% !important;
+        }
+
+        .report-chart-empty {
+            color: var(--muted);
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+
         .app-footer {
             color: var(--muted);
             font-size: .82rem;

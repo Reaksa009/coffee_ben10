@@ -40,7 +40,16 @@ class ReportController extends Controller
             })
             ->values();
 
-        return view('reports.index', compact('todayStats', 'monthStats', 'paymentMethods'));
+        $overviewTrend = $this->dailySalesTrend($today->copy()->subDays(6), $today->copy()->endOfDay());
+        $paymentChart = $this->paymentMethodChartData($paymentMethods);
+
+        return view('reports.index', compact(
+            'todayStats',
+            'monthStats',
+            'paymentMethods',
+            'overviewTrend',
+            'paymentChart'
+        ));
     }
 
     public function sales(Request $request): View
@@ -68,7 +77,27 @@ class ReportController extends Controller
         // Group by period
         $chartData = $this->groupByPeriod($orders, $period);
 
-        return view('reports.sales', compact('orders', 'summary', 'chartData', 'period', 'startDate', 'endDate'));
+        $paymentBreakdown = $orders
+            ->groupBy(fn ($order) => $order->payment_method ?: 'unknown')
+            ->map(function ($orders, $method) {
+                return [
+                    'label' => ucfirst($method),
+                    'orders' => $orders->count(),
+                    'revenue' => (float) $orders->sum('total_amount'),
+                ];
+            })
+            ->values()
+            ->all();
+
+        return view('reports.sales', compact(
+            'orders',
+            'summary',
+            'chartData',
+            'paymentBreakdown',
+            'period',
+            'startDate',
+            'endDate'
+        ));
     }
 
     public function products(Request $request): View
@@ -94,7 +123,20 @@ class ReportController extends Controller
             ->filter(fn($item) => $item['quantity_sold'] > 0)
             ->sortByDesc('revenue');
 
-        return view('reports.products', compact('products', 'startDate', 'endDate'));
+        $productChartData = $products
+            ->take(8)
+            ->values()
+            ->map(function ($item) {
+                return [
+                    'label' => $item['product']->name,
+                    'category' => $item['product']->category ?? 'Menu item',
+                    'quantity' => (int) $item['quantity_sold'],
+                    'revenue' => (float) $item['revenue'],
+                ];
+            })
+            ->all();
+
+        return view('reports.products', compact('products', 'productChartData', 'startDate', 'endDate'));
     }
 
     public function export(Request $request)
@@ -153,27 +195,64 @@ class ReportController extends Controller
         ]);
     }
 
-    private function groupByPeriod($orders, $period)
+    private function dailySalesTrend(Carbon $startDate, Carbon $endDate): array
+    {
+        $points = [];
+        $cursor = $startDate->copy()->startOfDay();
+        $lastDay = $endDate->copy()->endOfDay();
+
+        while ($cursor->lessThanOrEqualTo($lastDay)) {
+            $orders = Order::where('status', 'paid')
+                ->whereBetween('created_at', [$cursor->copy()->startOfDay(), $cursor->copy()->endOfDay()]);
+
+            $points[] = [
+                'label' => $cursor->format('M d'),
+                'date' => $cursor->format('Y-m-d'),
+                'orders' => (int) (clone $orders)->count(),
+                'revenue' => (float) (clone $orders)->sum('total_amount'),
+            ];
+
+            $cursor->addDay();
+        }
+
+        return $points;
+    }
+
+    private function paymentMethodChartData($paymentMethods): array
+    {
+        return [
+            'labels' => $paymentMethods->map(fn ($method) => ucfirst($method->payment_method))->values()->all(),
+            'totals' => $paymentMethods->map(fn ($method) => (float) $method->total)->values()->all(),
+            'counts' => $paymentMethods->map(fn ($method) => (int) $method->count)->values()->all(),
+        ];
+    }
+
+    private function groupByPeriod($orders, $period): array
     {
         $data = [];
 
         foreach ($orders as $order) {
             if ($period === 'daily') {
                 $key = $order->created_at->format('Y-m-d');
+                $label = $order->created_at->format('M d');
             } elseif ($period === 'weekly') {
-                $key = 'Week ' . $order->created_at->format('W Y');
+                $key = $order->created_at->format('o-W');
+                $label = 'Week ' . $order->created_at->format('W, Y');
             } else {
                 $key = $order->created_at->format('Y-m');
+                $label = $order->created_at->format('M Y');
             }
 
             if (!isset($data[$key])) {
-                $data[$key] = ['revenue' => 0, 'count' => 0];
+                $data[$key] = ['label' => $label, 'revenue' => 0, 'count' => 0];
             }
 
             $data[$key]['revenue'] += $order->total_amount;
             $data[$key]['count']++;
         }
 
-        return $data;
+        ksort($data);
+
+        return array_values($data);
     }
 }

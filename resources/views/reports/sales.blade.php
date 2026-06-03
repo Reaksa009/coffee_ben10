@@ -41,6 +41,11 @@
         </div>
     </form>
 
+    @php
+        $hasSalesChart = collect($chartData)->sum('count') > 0 || collect($chartData)->sum('revenue') > 0;
+        $hasPaymentBreakdown = collect($paymentBreakdown)->sum('revenue') > 0;
+    @endphp
+
     <div class="row g-4 mb-4">
         <div class="col-sm-6 col-lg-3">
             <div class="app-card" style="text-align: center; padding: 1.5rem;">
@@ -66,6 +71,44 @@
                 <div class="text-muted small mb-2">Average Order</div>
                 <div style="font-size: 2rem; font-weight: 800;">${{ number_format($summary['average_order'], 2) }}</div>
             </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <section class="app-card h-100">
+                <div class="app-card-header">
+                    <div>
+                        <h3 class="app-card-title">Sales Trend</h3>
+                        <div class="text-muted small">Revenue and order volume grouped by {{ ucfirst($period) }}</div>
+                    </div>
+                </div>
+                <div class="report-chart-body">
+                    @if($hasSalesChart)
+                        <canvas id="salesTrendChart" aria-label="Sales trend chart" role="img"></canvas>
+                    @else
+                        <div class="report-chart-empty">No paid orders found for this period</div>
+                    @endif
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-4">
+            <section class="app-card h-100">
+                <div class="app-card-header">
+                    <div>
+                        <h3 class="app-card-title">Payment Mix</h3>
+                        <div class="text-muted small">Paid order revenue by method</div>
+                    </div>
+                </div>
+                <div class="report-chart-body compact">
+                    @if($hasPaymentBreakdown)
+                        <canvas id="salesPaymentChart" aria-label="Payment mix chart" role="img"></canvas>
+                    @else
+                        <div class="report-chart-empty">No payment mix for this period</div>
+                    @endif
+                </div>
+            </section>
         </div>
     </div>
 
@@ -123,4 +166,109 @@
             </table>
         @endif
     </div>
+@endsection
+
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.Chart) {
+                return;
+            }
+
+            const chartData = @json($chartData);
+            const paymentBreakdown = @json($paymentBreakdown);
+            const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+            const chartColors = ['#0f766e', '#2563eb', '#d97706', '#7c3aed', '#dc2626', '#0891b2'];
+
+            const salesCanvas = document.getElementById('salesTrendChart');
+            if (salesCanvas) {
+                new Chart(salesCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.map((point) => point.label),
+                        datasets: [
+                            {
+                                label: 'Revenue',
+                                data: chartData.map((point) => point.revenue),
+                                backgroundColor: 'rgba(15, 118, 110, .82)',
+                                borderRadius: 6,
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: 'Orders',
+                                data: chartData.map((point) => point.count),
+                                type: 'line',
+                                borderColor: '#2563eb',
+                                backgroundColor: '#2563eb',
+                                borderWidth: 3,
+                                tension: .35,
+                                yAxisID: 'y1',
+                            },
+                        ],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.dataset.label === 'Revenue'
+                                            ? 'Revenue: ' + money.format(context.parsed.y)
+                                            : 'Orders: ' + context.parsed.y;
+                                    },
+                                },
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { callback: (value) => money.format(value) },
+                                grid: { color: 'rgba(148, 163, 184, .18)' },
+                            },
+                            y1: {
+                                beginAtZero: true,
+                                position: 'right',
+                                ticks: { precision: 0 },
+                                grid: { drawOnChartArea: false },
+                            },
+                            x: { grid: { display: false } },
+                        },
+                    },
+                });
+            }
+
+            const paymentCanvas = document.getElementById('salesPaymentChart');
+            if (paymentCanvas) {
+                new Chart(paymentCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: paymentBreakdown.map((item) => item.label),
+                        datasets: [{
+                            data: paymentBreakdown.map((item) => item.revenue),
+                            backgroundColor: chartColors,
+                            borderColor: '#fff',
+                            borderWidth: 3,
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        cutout: '64%',
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const orders = paymentBreakdown[context.dataIndex].orders || 0;
+                                        return context.label + ': ' + money.format(context.parsed) + ' (' + orders + ' orders)';
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+        });
+    </script>
 @endsection

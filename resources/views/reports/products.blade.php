@@ -33,6 +33,26 @@
         </div>
     </form>
 
+    @php
+        $hasProductChart = collect($productChartData)->sum('quantity') > 0 || collect($productChartData)->sum('revenue') > 0;
+    @endphp
+
+    <section class="app-card mb-4">
+        <div class="app-card-header">
+            <div>
+                <h3 class="app-card-title">Top Product Chart</h3>
+                <div class="text-muted small">Revenue and quantity sold for the top 8 products</div>
+            </div>
+        </div>
+        <div class="report-chart-body">
+            @if($hasProductChart)
+                <canvas id="productPerformanceChart" aria-label="Product performance chart" role="img"></canvas>
+            @else
+                <div class="report-chart-empty">No products sold in the selected period</div>
+            @endif
+        </div>
+    </section>
+
     <div class="app-card">
         <div class="app-card-header">
             <h3 class="app-card-title">Best Selling Products</h3>
@@ -83,4 +103,78 @@
             </table>
         @endif
     </div>
+@endsection
+
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.Chart) {
+                return;
+            }
+
+            const productChartData = @json($productChartData);
+            const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+            const productCanvas = document.getElementById('productPerformanceChart');
+            if (productCanvas) {
+                new Chart(productCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: productChartData.map((item) => item.label),
+                        datasets: [
+                            {
+                                label: 'Revenue',
+                                data: productChartData.map((item) => item.revenue),
+                                backgroundColor: 'rgba(15, 118, 110, .82)',
+                                borderRadius: 6,
+                                xAxisID: 'x',
+                            },
+                            {
+                                label: 'Qty Sold',
+                                data: productChartData.map((item) => item.quantity),
+                                backgroundColor: 'rgba(37, 99, 235, .72)',
+                                borderRadius: 6,
+                                xAxisID: 'x1',
+                            },
+                        ],
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    afterTitle: function (items) {
+                                        const item = productChartData[items[0].dataIndex];
+                                        return item.category;
+                                    },
+                                    label: function (context) {
+                                        return context.dataset.label === 'Revenue'
+                                            ? 'Revenue: ' + money.format(context.parsed.x)
+                                            : 'Qty Sold: ' + context.parsed.x;
+                                    },
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { callback: (value) => money.format(value) },
+                                grid: { color: 'rgba(148, 163, 184, .18)' },
+                            },
+                            x1: {
+                                beginAtZero: true,
+                                position: 'top',
+                                ticks: { precision: 0 },
+                                grid: { drawOnChartArea: false },
+                            },
+                            y: { grid: { display: false } },
+                        },
+                    },
+                });
+            }
+        });
+    </script>
 @endsection
