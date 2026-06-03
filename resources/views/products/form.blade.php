@@ -189,18 +189,19 @@
     <div class="col-lg-4">
         <div class="app-card p-4">
             <label class="form-label">Image</label>
-            <input type="file" name="image" class="form-control">
+            <input type="file" name="image" id="product-image-input" class="form-control" accept="image/*">
 
             <div class="mt-3">
-                @if(!empty($product) && !empty($product->image_url))
-                    <img src="{{ $product->image_url }}" class="img-fluid rounded border"
-                        alt="{{ $product->name }}">
-                @else
-                    <div class="border rounded bg-light text-muted d-flex align-items-center justify-content-center"
-                        style="aspect-ratio:4/3;">
-                        <i class="bi bi-image fs-1"></i>
-                    </div>
-                @endif
+                @php($hasProductImage = !empty($product) && !empty($product->image_url))
+                <img id="product-image-preview"
+                    @if($hasProductImage) src="{{ $product->image_url }}" @endif
+                    class="img-fluid rounded border {{ $hasProductImage ? '' : 'd-none' }}"
+                    alt="{{ $hasProductImage ? $product->name : 'Product image preview' }}">
+                <div id="product-image-placeholder"
+                    class="border rounded bg-light text-muted align-items-center justify-content-center"
+                    style="aspect-ratio:4/3; display: {{ $hasProductImage ? 'none' : 'flex' }};">
+                    <i class="bi bi-image fs-1"></i>
+                </div>
             </div>
 
             <button class="btn btn-primary w-100 mt-4">
@@ -241,6 +242,37 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const imageInput = document.getElementById('product-image-input');
+        const imagePreview = document.getElementById('product-image-preview');
+        const imagePlaceholder = document.getElementById('product-image-placeholder');
+        let imagePreviewUrl = null;
+
+        if (imageInput && imagePreview && imagePlaceholder) {
+            imageInput.addEventListener('change', function () {
+                const file = imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
+
+                if (imagePreviewUrl) {
+                    URL.revokeObjectURL(imagePreviewUrl);
+                    imagePreviewUrl = null;
+                }
+
+                if (!file) {
+                    if (!imagePreview.getAttribute('src')) {
+                        imagePreview.classList.add('d-none');
+                        imagePlaceholder.style.display = 'flex';
+                    }
+
+                    return;
+                }
+
+                imagePreviewUrl = URL.createObjectURL(file);
+                imagePreview.src = imagePreviewUrl;
+                imagePreview.alt = file.name || 'Product image preview';
+                imagePreview.classList.remove('d-none');
+                imagePlaceholder.style.display = 'none';
+            });
+        }
+
         const rows = document.getElementById('ingredient-rows');
         const addButton = document.getElementById('add-ingredient-row');
         const template = document.getElementById('ingredient-row-template');

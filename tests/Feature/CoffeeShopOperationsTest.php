@@ -9,6 +9,7 @@ use App\Models\ProductIngredient;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class CoffeeShopOperationsTest extends TestCase
@@ -149,6 +150,38 @@ class CoffeeShopOperationsTest extends TestCase
             'name' => 'Iced Americano',
             'stock' => 12,
         ]);
+    }
+
+    public function test_manager_can_upload_product_image_and_serve_it(): void
+    {
+        $manager = User::factory()->create(['role' => User::ROLE_MANAGER]);
+
+        $this->actingAs($manager)
+            ->post(route('products.store'), [
+                'name' => 'Photo Latte',
+                'description' => 'Latte with product photo',
+                'price' => 4.25,
+                'stock' => 9,
+                'image' => UploadedFile::fake()->image('photo-latte.jpg', 64, 64),
+            ])
+            ->assertRedirect(route('products.index'))
+            ->assertSessionHas('success');
+
+        $product = Product::where('name', 'Photo Latte')->firstOrFail();
+
+        $this->assertSame('photo-latte.jpg', $product->image_name);
+        $this->assertNotEmpty($product->image_data);
+        $this->assertStringStartsWith('image/', $product->image_mime);
+
+        $this->actingAs($manager)
+            ->get(route('products.image', $product))
+            ->assertOk()
+            ->assertHeader('Content-Type', $product->image_mime);
+
+        $this->actingAs($manager)
+            ->get(route('products.index'))
+            ->assertOk()
+            ->assertSee(route('products.image', $product), false);
     }
 
     public function test_purchase_restock_updates_inventory_quantity_and_cost(): void
