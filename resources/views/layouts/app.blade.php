@@ -349,6 +349,13 @@
             min-width: 80px;
         }
 
+        .app-footer {
+            color: var(--muted);
+            font-size: .82rem;
+            padding-top: 1.25rem;
+            text-align: center;
+        }
+
         @media (max-width: 767.98px) {
             .page-head {
                 align-items: stretch;
@@ -557,6 +564,10 @@
                     @endif
 
                     @yield('content')
+
+                    <footer class="app-footer">
+                        Copyright &copy; {{ date('Y') }} by Reaksa Vuthy.
+                    </footer>
                 </main>
             </div>
         </div>
@@ -570,6 +581,10 @@
             @endif
 
             @yield('content')
+
+            <footer class="app-footer">
+                Copyright &copy; {{ date('Y') }} by Reaksa Vuthy.
+            </footer>
         </main>
     @endauth
 
