@@ -47,7 +47,7 @@
                     <tbody>
                         @foreach($orders as $order)
                             <tr>
-                                <td class="fw-semibold">#{{ $order->id }}</td>
+                                <td class="fw-semibold">{{ $order->display_order_label }}</td>
                                 <td>
                                     @if($order->customer)
                                         <div class="fw-semibold">{{ $order->customer->name ?: 'Walk-in Customer' }}</div>

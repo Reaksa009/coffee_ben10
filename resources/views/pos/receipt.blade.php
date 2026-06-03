@@ -244,6 +244,71 @@
                 font-size: 1.75rem;
             }
         }
+
+        @media print {
+            @page {
+                margin: 12mm;
+            }
+
+            body {
+                background: #fff !important;
+            }
+
+            .app-topbar,
+            .sidebar,
+            .offcanvas,
+            .alert,
+            .modal,
+            .modal-backdrop,
+            .no-print,
+            #khqr-payment-box {
+                display: none !important;
+            }
+
+            .container-fluid,
+            .row {
+                display: block !important;
+            }
+
+            main {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .col-12,
+            .col-md-10,
+            .col-lg-8,
+            .col-lg-4 {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+
+            .page-header-modern,
+            .modern-card,
+            .summary-card {
+                background: #fff !important;
+                box-shadow: none !important;
+                border: 1px solid #d1d5db !important;
+                border-radius: 0 !important;
+                color: #111827 !important;
+                page-break-inside: avoid;
+            }
+
+            .receipt-title {
+                color: #111827 !important;
+                background: none !important;
+                -webkit-text-fill-color: #111827;
+            }
+
+            .table-modern th,
+            .table-modern td {
+                color: #111827 !important;
+                border-color: #d1d5db !important;
+            }
+        }
     </style>
 
     @php
@@ -270,19 +335,24 @@
         <div>
             <h1 class="receipt-title">
                 <i class="bi bi-receipt me-2"></i>
-                Receipt #{{ $order->id }}
+                Receipt {{ $order->display_order_label }}
             </h1>
             <div class="receipt-date">
                 <i class="bi bi-calendar3 me-1"></i>
                 Created {{ $order->created_at->format('M d, Y H:i') }}
             </div>
         </div>
-        <div class="d-flex gap-3">
+        <div class="d-flex gap-3 no-print">
             <span class="badge-modern {{ $statusBadgeClass }}">
                 <i
                     class="bi {{ $order->status === 'pending' ? 'bi-hourglass-split' : ($order->status === 'paid' ? 'bi-check-circle' : 'bi-x-circle') }} me-1"></i>
                 {{ ucfirst($order->status) }}
             </span>
+            @if($order->status === 'paid')
+                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> Print Receipt
+                </button>
+            @endif
             <a href="{{ route('pos.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
                 <i class="bi bi-arrow-left me-1"></i> Back to POS
             </a>
@@ -490,7 +560,7 @@
                             <h5 class="modal-title fw-bold" id="khqrPaymentModalLabel">
                                 <i class="bi bi-qr-code me-2"></i>KHQR Payment
                             </h5>
-                            <div class="small opacity-75 mt-1">Order #{{ $order->id }} -
+                            <div class="small opacity-75 mt-1">Order {{ $order->display_order_label }} -
                                 ${{ number_format($order->total_amount, 2) }}</div>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
@@ -536,8 +606,9 @@
         </div>
     </div>
 
-    <!-- Same JavaScript - UNCHANGED -->
     <script>
+        const shouldAutoPrintReceipt = @json((bool) session('print_receipt') || request()->boolean('print'));
+
         function showPaymentSuccess(message) {
             const messageEl = document.getElementById('paymentSuccessMessage');
             const modalEl = document.getElementById('paymentSuccessModal');
@@ -560,6 +631,20 @@
         </script>
     @endif
 
+    @if($order->status === 'paid')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                if (!shouldAutoPrintReceipt) {
+                    return;
+                }
+
+                setTimeout(function () {
+                    window.print();
+                }, 600);
+            });
+        </script>
+    @endif
+
     @if($order->status === 'pending')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -573,7 +658,7 @@
                 const regenerateBtn = document.getElementById('khqr-regenerate-btn');
                 const statusUrlTemplate = @json(route('payment.khqr.status', ['payment' => '__PAYMENT_ID__']));
                 const khqrMerchantName = @json(config('khqr.account_name', config('app.name', 'POS')));
-                const khqrOrderLabel = @json('Order #' . $order->id);
+                const khqrOrderLabel = @json('Order ' . $order->display_order_label);
                 const khqrAmountLabel = @json('$ ' . number_format($order->total_amount, 2));
                 let expiryTimer = null;
                 let statusTimer = null;
@@ -615,7 +700,7 @@
                         const loyaltyMessage = points > 0 ? ' Earned ' + points + ' loyalty points.' : '';
                         showPaymentSuccess((data.message || 'Payment successful.') + loyaltyMessage);
                         setTimeout(function () {
-                            window.location.reload();
+                            window.location.href = data.receipt_url || @json(route('pos.receipt', ['id' => $order->id, 'print' => 1]));
                         }, 1400);
                     }
                 }

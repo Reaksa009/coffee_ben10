@@ -109,11 +109,12 @@ class ReportController extends Controller
                 ->with('items.product')
                 ->get();
 
-            $csv = "Date,Order ID,Amount,Discount,Payment Method,Status\n";
+            $csv = "Date,Order Number,Order ID,Amount,Discount,Payment Method,Status\n";
             foreach ($orders as $order) {
                 $csv .= sprintf(
-                    "%s,%s,%.2f,%.2f,%s,%s\n",
+                    "%s,%s,%s,%.2f,%.2f,%s,%s\n",
                     $order->created_at->format('Y-m-d H:i'),
+                    $order->display_order_number,
                     $order->id,
                     $order->total_amount,
                     $order->discount_amount,

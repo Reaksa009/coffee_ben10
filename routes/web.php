@@ -1,21 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthController;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
-use App\Http\Controllers\POSController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PromoController;
-use App\Http\Controllers\PaymentMethodController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\POSController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PromoController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return auth()->check()
@@ -56,9 +56,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/project-overview', 'project-overview')->name('project.overview');
 
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role.update');
+        Route::patch('/users/{user}/password', [UserController::class, 'updatePassword'])->name('users.password.update');
+    });
+
     Route::middleware('role:admin,manager')->group(function () {
         // Product CRUD
-        Route::resource('products', ProductController::class)->except(['show']);
+        Route::resource('products', ProductController::class)->except(['show', 'destroy']);
+        Route::delete('/products/{product}', [ProductController::class, 'destroy'])
+            ->middleware('role:admin')
+            ->name('products.destroy');
 
         // Orders (admin)
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
@@ -67,7 +76,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('customers', CustomerController::class)->only(['index', 'show']);
 
         // Promos
-        Route::resource('promos', PromoController::class);
+        Route::resource('promos', PromoController::class)->except(['destroy']);
+        Route::delete('/promos/{promo}', [PromoController::class, 'destroy'])
+            ->middleware('role:admin')
+            ->name('promos.destroy');
 
         // Payments
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');

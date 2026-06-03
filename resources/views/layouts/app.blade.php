@@ -419,6 +419,10 @@
                                 href="{{ route('orders.index') }}"><i class="bi bi-receipt"></i> Orders</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('customers.*') ? 'active' : '' }}"
                                 href="{{ route('customers.index') }}"><i class="bi bi-people"></i> Customers</a></li>
+                        @if(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
+                            <li class="nav-item"><a class="nav-link {{ Request::routeIs('users.*') ? 'active' : '' }}"
+                                    href="{{ route('users.index') }}"><i class="bi bi-person-gear"></i> Users</a></li>
+                        @endif
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('payments.*') ? 'active' : '' }}"
                                 href="{{ route('payments.index') }}"><i class="bi bi-credit-card"></i> Payments</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('promos.*') ? 'active' : '' }}"
@@ -474,6 +478,12 @@
                                 <a class="nav-link {{ Request::routeIs('customers.*') ? 'active' : '' }}"
                                     href="{{ route('customers.index') }}"><i class="bi bi-people"></i> Customers</a>
                             </li>
+                            @if(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
+                                <li class="nav-item">
+                                    <a class="nav-link {{ Request::routeIs('users.*') ? 'active' : '' }}"
+                                        href="{{ route('users.index') }}"><i class="bi bi-person-gear"></i> Users</a>
+                                </li>
+                            @endif
                         {{-- <li class="nav-item">
                             <a class="nav-link {{ Request::routeIs('project.overview') ? 'active' : '' }}"
                                 href="{{ route('project.overview') }}"><i class="bi bi-journal-text"></i> Project

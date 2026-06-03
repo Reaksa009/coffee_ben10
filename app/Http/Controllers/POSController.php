@@ -192,6 +192,8 @@ class POSController extends Controller
 
                 $discountAmount = round($promoDiscountAmount + $redemption['discount'], 2);
                 $finalTotal = round(max(0.01, $total - $discountAmount), 2);
+                $orderDate = now()->toDateString();
+                $dailyOrderNumber = $this->nextDailyOrderNumber($orderDate);
 
                 foreach ($cart as $item) {
                     $product = Product::whereKey($item['product_id'])->firstOrFail();
@@ -211,6 +213,8 @@ class POSController extends Controller
                     'customer_id' => $customer?->id,
                     'customer_name' => $customer?->name,
                     'customer_phone' => $customer?->phone,
+                    'order_date' => $orderDate,
+                    'daily_order_number' => $dailyOrderNumber,
                     'subtotal_amount' => $total,
                     'total_amount' => $finalTotal,
                     'discount_amount' => $discountAmount,
@@ -310,5 +314,12 @@ class POSController extends Controller
         $price = $product->{$column} ?? $product->price;
 
         return round(max(0.01, $price), 2);
+    }
+
+    private function nextDailyOrderNumber(string $orderDate): int
+    {
+        return ((int) Order::where('order_date', $orderDate)
+            ->lockForUpdate()
+            ->max('daily_order_number')) + 1;
     }
 }

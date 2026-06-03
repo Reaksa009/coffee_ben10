@@ -124,7 +124,7 @@
                                 <td>
                                     @if($payment->order)
                                         <a href="{{ route('orders.show', $payment->order) }}" class="fw-semibold text-decoration-none">
-                                            #{{ $payment->order->id }}
+                                            {{ $payment->order->display_order_label }}
                                         </a>
                                     @else
                                         <span class="text-muted">Missing order</span>

@@ -85,7 +85,7 @@
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Order ID</th>
+                        <th>Order</th>
                         <th>Items</th>
                         <th>Amount</th>
                         <th>Discount</th>
@@ -97,7 +97,7 @@
                     @foreach($orders as $order)
                         <tr>
                             <td>{{ $order->created_at->format('M d, H:i') }}</td>
-                            <td><strong>#{{ $order->id }}</strong></td>
+                            <td><strong>{{ $order->display_order_label }}</strong></td>
                             <td>
                                 @foreach($order->items as $item)
                                     <div class="small">{{ $item->quantity }}x {{ $item->product->name }}</div>

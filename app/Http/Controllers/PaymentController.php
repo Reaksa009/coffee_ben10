@@ -2,25 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\KHQRService;
 use App\Services\LoyaltyService;
 use App\Services\PaymentVerificationService;
+use App\Services\TelegramNotificationService;
+use Illuminate\Http\Request;
 use KHQR\BakongKHQR;
 
 class PaymentController extends Controller
 {
     protected $khqr;
+
     protected $verificationService;
+
     protected $loyalty;
 
-    public function __construct(KHQRService $khqr, PaymentVerificationService $verificationService, LoyaltyService $loyalty)
-    {
+    protected $telegram;
+
+    public function __construct(
+        KHQRService $khqr,
+        PaymentVerificationService $verificationService,
+        LoyaltyService $loyalty,
+        TelegramNotificationService $telegram
+    ) {
         $this->khqr = $khqr;
         $this->verificationService = $verificationService;
         $this->loyalty = $loyalty;
+        $this->telegram = $telegram;
     }
 
     public function index(Request $request)
@@ -100,17 +110,20 @@ class PaymentController extends Controller
             // Run verification if not already verified
             if ($payment->verification_status !== 'verified') {
                 $verifyResult = $this->verificationService->verify($payment);
-                if (!$verifyResult['success']) {
+                if (! $verifyResult['success']) {
                     return response()->json([
                         'status' => 'paid',
                         'verification_status' => 'failed',
-                        'message' => 'Payment received but verification failed: ' . $verifyResult['error'],
+                        'message' => 'Payment received but verification failed: '.$verifyResult['error'],
                         'error' => $verifyResult['error'],
                     ], 422);
                 }
+
+                $payment->refresh();
             }
 
             $loyaltyResult = $this->loyalty->awardForPaidOrder($payment->order);
+            $this->sendTelegramAlertOnce($payment->fresh());
 
             return response()->json([
                 'status' => 'paid',
@@ -118,6 +131,7 @@ class PaymentController extends Controller
                 'message' => 'Payment successful and verified.',
                 'verified_at' => $payment->verified_at,
                 'loyalty_points_earned' => $loyaltyResult['points'],
+                'receipt_url' => $this->receiptUrlFor($payment),
             ]);
         }
 
@@ -160,14 +174,16 @@ class PaymentController extends Controller
             // Run verification after payment is marked as paid
             $verifyResult = $this->verificationService->verify($payment);
 
-            if (!$verifyResult['success']) {
+            if (! $verifyResult['success']) {
                 return response()->json([
                     'status' => 'paid',
                     'verification_status' => 'failed',
-                    'message' => 'Payment received but verification failed: ' . $verifyResult['error'],
+                    'message' => 'Payment received but verification failed: '.$verifyResult['error'],
                     'error' => $verifyResult['error'],
                 ], 422);
             }
+
+            $payment->refresh();
 
             $order = $payment->order;
             if ($order) {
@@ -176,6 +192,7 @@ class PaymentController extends Controller
             }
 
             $loyaltyResult = $this->loyalty->awardForPaidOrder($order);
+            $this->sendTelegramAlertOnce($payment->fresh());
 
             return response()->json([
                 'status' => 'paid',
@@ -184,6 +201,7 @@ class PaymentController extends Controller
                 'transaction_id' => $payment->transaction_id,
                 'verified_at' => $payment->verified_at,
                 'loyalty_points_earned' => $loyaltyResult['points'],
+                'receipt_url' => $this->receiptUrlFor($payment),
             ]);
         }
 
@@ -219,14 +237,43 @@ class PaymentController extends Controller
         return data_get($response, 'data.hash')
             ?? data_get($response, 'hash')
             ?? data_get($response, 'tran')
-            ?? 'KHQR-' . $payment->id;
+            ?? 'KHQR-'.$payment->id;
+    }
+
+    private function receiptUrlFor(Payment $payment): ?string
+    {
+        if (! $payment->order_id) {
+            return null;
+        }
+
+        return route('pos.receipt', ['id' => $payment->order_id, 'print' => 1]);
+    }
+
+    private function sendTelegramAlertOnce(Payment $payment): void
+    {
+        $payment->loadMissing('order.items.product');
+
+        $meta = $payment->meta ?? [];
+        if (isset($meta['telegram_alerted_at'])) {
+            return;
+        }
+
+        if (! $this->telegram->sendPaymentSuccess($payment)) {
+            return;
+        }
+
+        $payment->forceFill([
+            'meta' => array_merge($meta, [
+                'telegram_alerted_at' => now()->toDateTimeString(),
+            ]),
+        ])->save();
     }
 
     public function verifyPayment(Payment $payment)
     {
         $result = $this->verificationService->verify($payment);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json($result, 422);
         }
 
@@ -247,13 +294,15 @@ class PaymentController extends Controller
 
         $payment = $order->payments()->latest()->first();
         if ($payment) {
-            $payment->update(['status' => 'paid', 'transaction_id' => 'SIM-' . $payment->id, 'meta' => array_merge($payment->meta ?? [], ['confirmed_at' => now()->toDateTimeString()])]);
+            $payment->update(['status' => 'paid', 'transaction_id' => 'SIM-'.$payment->id, 'meta' => array_merge($payment->meta ?? [], ['confirmed_at' => now()->toDateTimeString()])]);
             $order->update(['status' => 'paid']);
             $this->loyalty->awardForPaidOrder($order->fresh());
+            $this->sendTelegramAlertOnce($payment->fresh());
         }
 
         return redirect()
             ->route('pos.receipt', ['id' => $order->id])
+            ->with('print_receipt', true)
             ->with('success', 'Payment successful.');
     }
 }

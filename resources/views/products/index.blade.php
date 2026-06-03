@@ -231,14 +231,16 @@
                                             <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-pencil-square me-1"></i> Edit
                                             </a>
-                                            <form action="{{ route('products.destroy', $product) }}" method="POST"
-                                                class="confirm-delete flex-fill">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
-                                                    <i class="bi bi-trash me-1"></i> Delete
-                                                </button>
-                                            </form>
+                                            @if(auth()->user()->canDeleteBackOfficeRecords())
+                                                <form action="{{ route('products.destroy', $product) }}" method="POST"
+                                                    class="confirm-delete flex-fill">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                        <i class="bi bi-trash me-1"></i> Delete
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

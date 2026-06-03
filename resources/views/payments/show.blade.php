@@ -25,7 +25,7 @@
         <div class="d-flex gap-2">
             @if($payment->order)
                 <a href="{{ route('orders.show', $payment->order) }}" class="btn btn-outline-primary">
-                    <i class="bi bi-receipt me-1"></i> Order #{{ $payment->order->id }}
+                    <i class="bi bi-receipt me-1"></i> Order {{ $payment->order->display_order_label }}
                 </a>
             @endif
             <a href="{{ route('payments.index') }}" class="btn btn-outline-secondary">

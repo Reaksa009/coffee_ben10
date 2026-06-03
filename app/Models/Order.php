@@ -4,7 +4,8 @@ namespace App\Models;
 
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Order extends Model
 {
@@ -25,6 +26,8 @@ class Order extends Model
         'customer_id',
         'customer_name',
         'customer_phone',
+        'order_date',
+        'daily_order_number',
         'subtotal_amount',
         'total_amount',
         'status',
@@ -47,7 +50,24 @@ class Order extends Model
         'loyalty_points_redeemed' => 'integer',
         'loyalty_points_earned' => 'integer',
         'loyalty_awarded_at' => 'datetime',
+        'order_date' => 'date',
+        'daily_order_number' => 'integer',
     ];
+
+    public function getDisplayOrderNumberAttribute(): int
+    {
+        return (int) ($this->daily_order_number ?: $this->id);
+    }
+
+    public function getDisplayOrderLabelAttribute(): string
+    {
+        return '#'.$this->display_order_number;
+    }
+
+    public function setOrderDateAttribute($value): void
+    {
+        $this->attributes['order_date'] = $value ? Carbon::parse($value)->toDateString() : null;
+    }
 
     public function items()
     {

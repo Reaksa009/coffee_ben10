@@ -86,7 +86,7 @@ class KHQRService
             'currency' => $this->currency,
             'amount' => $amount,
             'billNumber' => $reference,
-            'purposeOfTransaction' => 'Order #' . $order->id,
+            'purposeOfTransaction' => $this->orderDescription($order),
         ];
 
         if ($this->merchantId && $this->acquiringBank) {
@@ -134,7 +134,7 @@ class KHQRService
                 'amount' => floatval($amount),
                 'currency' => $this->currency === KHQRData::CURRENCY_KHR ? 'KHR' : 'USD',
                 'reference' => $reference,
-                'description' => 'Order #' . $order->id,
+                'description' => $this->orderDescription($order),
                 'created_at' => $createdAt->toIso8601String(),
                 'expires_at' => $expiresAt->toIso8601String(),
             ],
@@ -187,7 +187,7 @@ class KHQRService
                 'amount' => (float) ($data['amount'] ?? $amount),
                 'currency' => $data['currency'] ?? ($this->currency === KHQRData::CURRENCY_KHR ? 'KHR' : 'USD'),
                 'reference' => $data['tran'] ?? null,
-                'description' => 'Order #' . $order->id,
+                'description' => $this->orderDescription($order),
                 'created_at' => $createdAt->toIso8601String(),
                 'expires_at' => $expiresAt?->toIso8601String(),
             ],
@@ -229,6 +229,11 @@ class KHQRService
             0,
             25
         );
+    }
+
+    private function orderDescription(Order $order): string
+    {
+        return 'Order '.$order->display_order_label;
     }
 
     private function withDynamicExpiration(string $qrData, CarbonInterface $createdAt, CarbonInterface $expiresAt): string

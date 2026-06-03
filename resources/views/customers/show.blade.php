@@ -75,7 +75,7 @@
                                         };
                                     @endphp
                                     <tr>
-                                        <td class="fw-semibold">#{{ $order->id }}</td>
+                                        <td class="fw-semibold">{{ $order->display_order_label }}</td>
                                         <td>${{ number_format($order->total_amount, 2) }}</td>
                                         <td>
                                             @if($order->loyalty_points_redeemed)

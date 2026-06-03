@@ -70,12 +70,14 @@
                                 <a href="{{ route('promos.edit', $promo) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <form action="{{ route('promos.destroy', $promo) }}" method="POST" class="d-inline confirm-delete">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                @if(auth()->user()->canDeleteBackOfficeRecords())
+                                    <form action="{{ route('promos.destroy', $promo) }}" method="POST" class="d-inline confirm-delete">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

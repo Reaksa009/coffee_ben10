@@ -4,16 +4,26 @@ Laravel POS project for Coffee Ben10 with product, order, payment, promo, custom
 
 ## Local Setup
 
-Install the PHP MongoDB extension for your local PHP/XAMPP version first.
+Create a MySQL database first. The default local database name is `POS_Project`.
 
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
+php artisan migrate
 php artisan serve
 ```
 
-Set `DB_URI` in `.env` to your MongoDB Atlas connection string. MongoDB does not use the SQL migrations in this project.
+For XAMPP, make sure Apache/MySQL are running and your `.env` contains the local MySQL settings:
+
+```text
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=POS_Project
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
 ## Vercel Deployment
 
@@ -24,9 +34,12 @@ Set these environment variables in the Vercel project before deploying:
 ```text
 APP_KEY=base64:...
 APP_URL=https://coffee-ben10.vercel.app
-DB_CONNECTION=mongodb
-DB_URI=mongodb+srv://...
-DB_DATABASE=coffee_ben10
+DB_CONNECTION=mysql
+DB_HOST=...
+DB_PORT=3306
+DB_DATABASE=...
+DB_USERNAME=...
+DB_PASSWORD=...
 KHQR_BAKONG_ACCOUNT_ID=...
 KHQR_ACCOUNT_NAME=...
 KHQR_MERCHANT_CITY=PHNOM PENH
@@ -35,5 +48,3 @@ KHQR_PROVIDER=khqr_link
 KHQR_API_BASE_URL=https://api.khqr.link
 KHQR_LINK_API_KEY=... # optional if KHQR Link requires merchant API keys
 ```
-
-If you connect MongoDB Atlas through Vercel Marketplace, populate `MONGODB_URI`; the app falls back to that value when `DB_URI` is not set.

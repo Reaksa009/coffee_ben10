@@ -375,7 +375,7 @@
                                     <i class="bi bi-receipt"></i>
                                 </div>
                                 <div>
-                                    <div class="fw-bold">Order #{{ $order->id }}</div>
+                                    <div class="fw-bold">Order {{ $order->display_order_label }}</div>
                                     <div class="text-muted small">{{ $order->created_at->format('M d, H:i') }}</div>
                                 </div>
                                 <div class="text-end">
@@ -435,7 +435,7 @@
                             <div class="dashboard-side-item">
                                 <div>
                                     <a href="{{ route('pos.receipt', ['id' => $payment->order_id]) }}" class="fw-semibold text-decoration-none">
-                                        Order #{{ $payment->order_id }}
+                                        Order {{ $payment->order?->display_order_label ?? '#' . $payment->order_id }}
                                     </a>
                                     <div class="text-muted small">{{ strtoupper($payment->provider ?? '-') }} - ${{ number_format($payment->amount, 2) }}</div>
                                 </div>

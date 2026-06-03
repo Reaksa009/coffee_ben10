@@ -44,15 +44,6 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
-        'mongodb' => [
-            'driver' => 'mongodb',
-            'dsn' => env('DB_URI') ?: env('MONGODB_URI'),
-            'database' => env('DB_DATABASE', env('MONGODB_DATABASE', 'coffee_ben10')),
-            'options' => [
-                'appname' => env('DB_APPNAME', 'Coffee Ben10'),
-            ],
-        ],
-
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),

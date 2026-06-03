@@ -12,7 +12,7 @@
 
     <div class="page-head">
         <div>
-            <h1 class="page-title">Order #{{ $order->id }}</h1>
+            <h1 class="page-title">Order {{ $order->display_order_label }}</h1>
             <p class="page-subtitle">{{ $order->created_at->format('M d, Y H:i') }}</p>
         </div>
         <div class="d-flex gap-2">

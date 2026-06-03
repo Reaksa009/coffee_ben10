@@ -23,9 +23,8 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="mongodb"/>
-        <env name="DB_URI" value="mongodb://127.0.0.1:27017"/>
-        <env name="DB_DATABASE" value="coffee_ben10_testing"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
@@ -34,6 +33,8 @@
         <env name="KHQR_ACCOUNT_NAME" value="Coffee Ben10"/>
         <env name="KHQR_MERCHANT_CITY" value="PHNOM PENH"/>
         <env name="KHQR_CURRENCY" value="USD"/>
+        <env name="KHQR_PROVIDER" value="local"/>
+        <env name="KHQR_API_BASE_URL" value=""/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
