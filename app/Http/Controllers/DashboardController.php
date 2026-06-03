@@ -17,7 +17,7 @@ class DashboardController extends Controller
         $totalRevenue = Order::where('status', 'paid')->sum('total_amount');
         $totalProducts = Product::count();
         $recentOrders = Order::with('items.product')->orderBy('created_at', 'desc')->limit(8)->get();
-        $lowStock = Product::where('stock', '<=', 5)->orderBy('stock')->limit(8)->get();
+        $lowStock = Product::with('category')->where('stock', '<=', 5)->orderBy('stock')->limit(8)->get();
         $recentPayments = Payment::with('order')->orderBy('created_at', 'desc')->limit(8)->get();
         $salesChart = collect(range(6, 0))->map(function ($daysAgo) {
             $date = Carbon::today()->subDays($daysAgo);

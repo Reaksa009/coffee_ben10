@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -20,12 +21,17 @@ class POSController extends Controller
     {
         $categories = Product::categoryOptions();
         $selectedCategory = request('category');
+        $selectedCategoryIds = Category::idsForName($selectedCategory);
         $products = Product::query()
-            ->when($selectedCategory, fn ($query) => $query->where('category', $selectedCategory))
-            ->orderBy('category')
+            ->with('category')
+            ->when($selectedCategory, function ($query) use ($selectedCategoryIds) {
+                return $selectedCategoryIds->isEmpty()
+                    ? $query->whereKey('__missing_category__')
+                    : $query->whereIn('category_id', $selectedCategoryIds->all());
+            })
             ->orderBy('name')
             ->get();
-        $productsByCategory = $products->groupBy(fn ($product) => trim((string) $product->category) ?: 'Uncategorized');
+        $productsByCategory = $products->groupBy(fn ($product) => $product->category_name ?: 'Uncategorized');
 
         return view('pos.index', compact('products', 'productsByCategory', 'categories', 'selectedCategory'));
     }
@@ -305,7 +311,7 @@ class POSController extends Controller
 
     private function isCoffeeProduct(Product $product): bool
     {
-        return in_array(strtolower((string) $product->category), ['coffee', 'caffee', 'cafe'], true);
+        return in_array(strtolower((string) $product->category_name), ['coffee', 'caffee', 'cafe'], true);
     }
 
     private function priceForSize(Product $product, string $selectedSize): float

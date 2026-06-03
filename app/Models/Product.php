@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Category;
 use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,6 +14,7 @@ class Product extends DatabaseModel
 
     protected $fillable = [
         'name',
+        'category_id',
         'category',
         'description',
         'coffee_size',
@@ -41,17 +43,37 @@ class Product extends DatabaseModel
         return $this->hasMany(OrderItem::class);
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function getCategoryNameAttribute(): ?string
+    {
+        if (! empty($this->attributes['category_id'])) {
+            $category = $this->relationLoaded('category')
+                ? $this->relations['category']
+                : $this->getRelationValue('category');
+
+            if ($category instanceof Category) {
+                return $category->name;
+            }
+        }
+
+        $legacyCategory = $this->attributes['category'] ?? null;
+
+        if (is_string($legacyCategory)) {
+            $legacyCategory = trim($legacyCategory);
+
+            return $legacyCategory === '' ? null : $legacyCategory;
+        }
+
+        return null;
+    }
+
     public static function categoryOptions(): Collection
     {
-        return static::query()
-            ->whereNotNull('category')
-            ->get(['category'])
-            ->pluck('category')
-            ->map(fn ($category) => trim((string) $category))
-            ->filter()
-            ->unique(fn ($category) => strtolower($category))
-            ->sortBy(fn ($category) => strtolower($category))
-            ->values();
+        return Category::options();
     }
 
     public function getImageUrlAttribute()
@@ -78,9 +100,18 @@ class Product extends DatabaseModel
 
     public function setCategoryAttribute($value): void
     {
-        $category = trim((string) $value);
+        $this->attributes['category_id'] = Category::findOrCreateByName($value)?->id;
+    }
 
-        $this->attributes['category'] = $category === '' ? null : $category;
+    public function setCategoryIdAttribute($value): void
+    {
+        if ($value === null || $value === '') {
+            $this->attributes['category_id'] = null;
+
+            return;
+        }
+
+        $this->attributes['category_id'] = $value;
     }
 
     public function setSmallPriceAttribute($value): void

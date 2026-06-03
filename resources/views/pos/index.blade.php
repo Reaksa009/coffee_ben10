@@ -256,9 +256,9 @@
                                     </div>
 
                                     <div class="mt-3 d-flex flex-wrap gap-2">
-                                        @if($product->category)
+                                        @if($product->category_name)
                                             <span class="badge text-bg-primary">
-                                                <i class="bi bi-tag me-1"></i>{{ $product->category }}
+                                                <i class="bi bi-tag me-1"></i>{{ $product->category_name }}
                                             </span>
                                         @endif
                                         @if($product->coffee_size)
@@ -299,7 +299,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            @if($isCoffeeCategory($product->category))
+                                            @if($isCoffeeCategory($product->category_name))
                                                 <div class="input-group mt-2">
                                                     <span class="input-group-text">Sugar</span>
                                                     <select name="sugar" class="form-select">

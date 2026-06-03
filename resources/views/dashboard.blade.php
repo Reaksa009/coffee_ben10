@@ -394,7 +394,7 @@
                             <div class="dashboard-side-item">
                                 <div>
                                     <div class="fw-semibold">{{ $product->name }}</div>
-                                    <div class="text-muted small">{{ $product->category ?? 'Menu item' }}</div>
+                                    <div class="text-muted small">{{ $product->category_name ?? 'Menu item' }}</div>
                                 </div>
                                 <span class="badge text-bg-{{ $product->stock <= 2 ? 'danger' : 'warning' }}">
                                     {{ $product->stock }} left

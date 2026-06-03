@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 //     return view('welcome');
 // });
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
@@ -68,6 +69,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])
             ->middleware('role:admin')
             ->name('products.destroy');
+
+        // Category CRUD
+        Route::resource('categories', CategoryController::class)->except(['show', 'destroy']);
+        Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])
+            ->middleware('role:admin')
+            ->name('categories.destroy');
 
         // Orders (admin)
         Route::resource('orders', OrderController::class)->only(['index', 'show']);

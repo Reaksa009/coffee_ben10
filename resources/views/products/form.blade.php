@@ -22,16 +22,14 @@
 
             <div class="mb-3">
                 <label class="form-label">Product Category</label>
-                @php($selectedCategory = old('category', $product->category ?? ''))
-                <select name="category" class="form-select">
+                @php($selectedCategoryId = old('category_id', $product->category_id ?? ''))
+                <select name="category_id" class="form-select">
                     <option value="">Select category</option>
-                    <option value="Coffee" @selected($selectedCategory === 'Coffee')>Coffee</option>
-                    <option value="Tea" @selected($selectedCategory === 'Tea')>Tea</option>
-                    <option value="Frappe" @selected($selectedCategory === 'Frappe')>Frappe</option>
-                    <option value="Smoothie" @selected($selectedCategory === 'Smoothie')>Smoothie</option>
-                    <option value="Bakery" @selected($selectedCategory === 'Bakery')>Bakery</option>
-                    <option value="Food" @selected($selectedCategory === 'Food')>Food</option>
-                    <option value="Other" @selected($selectedCategory === 'Other')>Other</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" @selected((string) $selectedCategoryId === (string) $category->id)>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 

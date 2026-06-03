@@ -82,7 +82,7 @@
                             <td>
                                 <strong>{{ $data['product']->name }}</strong>
                             </td>
-                            <td>{{ $data['product']->category ?? '-' }}</td>
+                            <td>{{ $data['product']->category_name ?? '-' }}</td>
                             <td>
                                 <span class="badge text-bg-primary">{{ $data['quantity_sold'] }}</span>
                             </td>

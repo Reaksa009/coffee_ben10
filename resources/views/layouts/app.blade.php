@@ -560,6 +560,8 @@
                     @if(auth()->user()->canManageBackOffice())
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('products.*') ? 'active' : '' }}"
                                 href="{{ route('products.index') }}"><i class="bi bi-box-seam"></i> Products</a></li>
+                        <li class="nav-item"><a class="nav-link {{ Request::routeIs('categories.*') ? 'active' : '' }}"
+                                href="{{ route('categories.index') }}"><i class="bi bi-tags"></i> Categories</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('orders.*') ? 'active' : '' }}"
                                 href="{{ route('orders.index') }}"><i class="bi bi-receipt"></i> Orders</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('customers.*') ? 'active' : '' }}"
@@ -614,6 +616,10 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::routeIs('products.*') ? 'active' : '' }}"
                                     href="{{ route('products.index') }}"><i class="bi bi-box-seam"></i> Products</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::routeIs('categories.*') ? 'active' : '' }}"
+                                    href="{{ route('categories.index') }}"><i class="bi bi-tags"></i> Categories</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::routeIs('orders.*') ? 'active' : '' }}"

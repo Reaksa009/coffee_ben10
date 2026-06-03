@@ -108,7 +108,7 @@ class ReportController extends Controller
         $startDate = Carbon::parse($startDate)->startOfDay();
         $endDate = Carbon::parse($endDate)->endOfDay();
 
-        $products = Product::with(['orderItems' => function ($query) use ($startDate, $endDate) {
+        $products = Product::with(['category', 'orderItems' => function ($query) use ($startDate, $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }])
             ->get()
@@ -129,7 +129,7 @@ class ReportController extends Controller
             ->map(function ($item) {
                 return [
                     'label' => $item['product']->name,
-                    'category' => $item['product']->category ?? 'Menu item',
+                    'category' => $item['product']->category_name ?? 'Menu item',
                     'quantity' => (int) $item['quantity_sold'],
                     'revenue' => (float) $item['revenue'],
                 ];
@@ -165,7 +165,7 @@ class ReportController extends Controller
                 );
             }
         } else {
-            $products = Product::with(['orderItems' => function ($query) use ($startDate, $endDate) {
+            $products = Product::with(['category', 'orderItems' => function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('created_at', [$startDate, $endDate]);
             }])->get();
 
@@ -180,7 +180,7 @@ class ReportController extends Controller
                     $csv .= sprintf(
                         "%s,%s,%d,%.2f,%d\n",
                         $product->name,
-                        $product->category ?? 'N/A',
+                        $product->category_name ?? 'N/A',
                         $qty,
                         $revenue,
                         $product->stock

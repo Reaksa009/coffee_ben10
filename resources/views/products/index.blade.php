@@ -193,11 +193,11 @@
                                     </div>
                                     <p class="text-muted small mb-3">{{ Str::limit($product->description, 80) }}</p>
 
-                                    @if($product->category || $product->coffee_size || $product->sugar)
+                                    @if($product->category_name || $product->coffee_size || $product->sugar)
                                         <div class="d-flex flex-wrap gap-2 mb-3">
-                                            @if($product->category)
+                                            @if($product->category_name)
                                                 <span class="badge text-bg-primary">
-                                                    <i class="bi bi-tag me-1"></i>{{ $product->category }}
+                                                    <i class="bi bi-tag me-1"></i>{{ $product->category_name }}
                                                 </span>
                                             @endif
                                             @if($product->coffee_size)

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Closure;
 use Illuminate\Http\Request;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -13,26 +15,34 @@ class ProductController extends Controller
     {
         $categories = Product::categoryOptions();
         $selectedCategory = request('category');
+        $selectedCategoryIds = Category::idsForName($selectedCategory);
         $products = Product::query()
-            ->when($selectedCategory, fn ($query) => $query->where('category', $selectedCategory))
-            ->orderBy('category')
+            ->with('category')
+            ->when($selectedCategory, function ($query) use ($selectedCategoryIds) {
+                return $selectedCategoryIds->isEmpty()
+                    ? $query->whereKey('__missing_category__')
+                    : $query->whereIn('category_id', $selectedCategoryIds->all());
+            })
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
-        $productsByCategory = $products->getCollection()->groupBy(fn ($product) => trim((string) $product->category) ?: 'Uncategorized');
+        $productsByCategory = $products->getCollection()->groupBy(fn ($product) => $product->category_name ?: 'Uncategorized');
 
         return view('products.index', compact('products', 'productsByCategory', 'categories', 'selectedCategory'));
     }
 
     public function create()
     {
-        return view('products.create');
+        $categories = Category::query()->orderBy('name')->get();
+
+        return view('products.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
+            'category_id' => $this->categoryIdRules(),
             'category' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'coffee_size' => 'nullable|string|max:50',
@@ -54,7 +64,10 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return view('products.edit', compact('product'));
+        $product->load('category');
+        $categories = Category::query()->orderBy('name')->get();
+
+        return view('products.edit', compact('product', 'categories'));
     }
 
     public function image(Product $product)
@@ -79,6 +92,7 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
+            'category_id' => $this->categoryIdRules(),
             'category' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'coffee_size' => 'nullable|string|max:50',
@@ -115,6 +129,16 @@ class ProductController extends Controller
 
     private function normalizeProductData(array $data): array
     {
+        if (array_key_exists('category_id', $data)) {
+            $data['category_id'] = $data['category_id'] === null || $data['category_id'] === ''
+                ? null
+                : $data['category_id'];
+
+            if ($data['category_id'] !== null) {
+                unset($data['category']);
+            }
+        }
+
         $data['price'] = (float) $data['price'];
         $data['stock'] = max(0, (int) $data['stock']);
 
@@ -125,6 +149,18 @@ class ProductController extends Controller
         }
 
         return $data;
+    }
+
+    private function categoryIdRules(): array
+    {
+        return [
+            'nullable',
+            function (string $attribute, mixed $value, Closure $fail): void {
+                if (($value !== null && $value !== '') && ! Category::whereKey($value)->exists()) {
+                    $fail('The selected category is invalid.');
+                }
+            },
+        ];
     }
 
     private function withUploadedImage(Request $request, array $data): array
