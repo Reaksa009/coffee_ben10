@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Category;
 use App\Models\OrderItem;
+use App\Models\ProductIngredient;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -43,9 +44,36 @@ class Product extends DatabaseModel
         return $this->hasMany(OrderItem::class);
     }
 
+    public function ingredients()
+    {
+        return $this->hasMany(ProductIngredient::class);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function recipeCost(): float
+    {
+        $ingredients = $this->relationLoaded('ingredients')
+            ? $this->ingredients
+            : $this->ingredients()->with('inventoryItem')->get();
+
+        return round($ingredients->sum(function (ProductIngredient $ingredient) {
+            return $ingredient->quantity * ($ingredient->inventoryItem?->unit_cost ?? 0);
+        }), 4);
+    }
+
+    public function profitMargin(?float $price = null): ?float
+    {
+        $salePrice = $price ?? $this->medium_price ?? $this->price;
+
+        if ($salePrice <= 0) {
+            return null;
+        }
+
+        return round((($salePrice - $this->recipeCost()) / $salePrice) * 100, 2);
     }
 
     public function getCategoryNameAttribute(): ?string

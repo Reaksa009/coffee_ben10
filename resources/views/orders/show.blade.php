@@ -88,6 +88,16 @@
                         <span class="text-success">-${{ number_format($order->discount_amount, 2) }}</span>
                     </div>
                 @endif
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Order Type</span>
+                    <span class="fw-semibold">{{ $order->order_type_label }}</span>
+                </div>
+                @if($order->service_label)
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">{{ $order->order_type === 'dine_in' ? 'Table' : 'Name' }}</span>
+                        <span class="fw-semibold">{{ $order->service_label }}</span>
+                    </div>
+                @endif
                 @if($order->loyalty_points_redeemed || $order->loyalty_points_earned)
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="text-muted">Loyalty</span>

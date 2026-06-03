@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\ActivityLogger;
 use App\Services\KHQRService;
 use App\Services\LoyaltyService;
 use App\Services\PaymentVerificationService;
@@ -193,6 +194,11 @@ class PaymentController extends Controller
 
             $loyaltyResult = $this->loyalty->awardForPaidOrder($order);
             $this->sendTelegramAlertOnce($payment->fresh());
+            ActivityLogger::log('payment.processed', 'Processed KHQR payment for order ' . $order?->display_order_label, $payment, [
+                'order_id' => $order?->id,
+                'amount' => $payment->amount,
+                'payment_method' => 'khqr',
+            ]);
 
             return response()->json([
                 'status' => 'paid',
@@ -298,6 +304,11 @@ class PaymentController extends Controller
             $order->update(['status' => 'paid']);
             $this->loyalty->awardForPaidOrder($order->fresh());
             $this->sendTelegramAlertOnce($payment->fresh());
+            ActivityLogger::log('payment.processed', 'Processed simulated KHQR payment for order ' . $order->display_order_label, $payment, [
+                'order_id' => $order->id,
+                'amount' => $payment->amount,
+                'payment_method' => 'khqr',
+            ]);
         }
 
         return redirect()

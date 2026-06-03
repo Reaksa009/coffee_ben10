@@ -5,16 +5,23 @@ use App\Http\Controllers\AuthController;
 //     return view('welcome');
 // });
 
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\CashierShiftController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromoController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ShopSettingController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -56,6 +63,9 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/project-overview', 'project-overview')->name('project.overview');
+    Route::get('/cashier-shifts', [CashierShiftController::class, 'index'])->name('cashier-shifts.index');
+    Route::post('/cashier-shifts', [CashierShiftController::class, 'store'])->name('cashier-shifts.store');
+    Route::put('/cashier-shifts/{cashierShift}/close', [CashierShiftController::class, 'close'])->name('cashier-shifts.close');
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -76,6 +86,9 @@ Route::middleware('auth')->group(function () {
             ->middleware('role:admin')
             ->name('categories.destroy');
 
+        // Ingredient inventory and recipes
+        Route::resource('inventory', InventoryController::class)->except(['create', 'show', 'edit']);
+
         // Orders (admin)
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
 
@@ -88,6 +101,17 @@ Route::middleware('auth')->group(function () {
             ->middleware('role:admin')
             ->name('promos.destroy');
 
+        // Supplier and purchase management
+        Route::resource('suppliers', SupplierController::class)->except(['create', 'show', 'edit']);
+        Route::resource('purchases', PurchaseController::class)->only(['index', 'create', 'store', 'show']);
+
+        // Shop settings, activity logs, and backups
+        Route::get('/shop-settings', [ShopSettingController::class, 'edit'])->name('shop-settings.edit');
+        Route::put('/shop-settings', [ShopSettingController::class, 'update'])->name('shop-settings.update');
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+        Route::get('/backup/export/{type}', [BackupController::class, 'export'])->name('backup.export');
+
         // Payments
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
@@ -96,6 +120,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('/reports/products', [ReportController::class, 'products'])->name('reports.products');
+        Route::get('/reports/daily-close', [ReportController::class, 'dailyClose'])->name('reports.daily-close');
         Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
     });
 

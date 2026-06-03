@@ -243,6 +243,25 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label small fw-semibold">Order Type</label>
+                        <select name="order_type" id="order-type" form="checkout-form" class="form-select mb-2" required>
+                            <option value="takeaway" @selected(old('order_type', 'takeaway') === 'takeaway')>Takeaway</option>
+                            <option value="dine_in" @selected(old('order_type') === 'dine_in')>Dine-in</option>
+                            <option value="delivery" @selected(old('order_type') === 'delivery')>Delivery</option>
+                        </select>
+                        <div id="table-number-wrap" class="input-group mb-2" style="display:none;">
+                            <span class="input-group-text"><i class="bi bi-grid-3x3-gap"></i></span>
+                            <input type="text" name="table_number" id="table-number" form="checkout-form"
+                                class="form-control" placeholder="Table number" value="{{ old('table_number') }}">
+                        </div>
+                        <div id="pickup-name-wrap" class="input-group mb-2">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <input type="text" name="pickup_name" id="pickup-name" form="checkout-form"
+                                class="form-control" placeholder="Pickup or delivery name" value="{{ old('pickup_name') }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label small fw-semibold">Customer Loyalty</label>
                         <div class="input-group mb-2">
                             <span class="input-group-text"><i class="bi bi-telephone"></i></span>
@@ -425,5 +444,20 @@
         if (customerPhoneInput.value.trim()) {
             lookupCustomer();
         }
+
+        const orderType = document.getElementById('order-type');
+        const tableWrap = document.getElementById('table-number-wrap');
+        const tableNumber = document.getElementById('table-number');
+        const pickupWrap = document.getElementById('pickup-name-wrap');
+
+        function syncOrderTypeFields() {
+            const dineIn = orderType.value === 'dine_in';
+            tableWrap.style.display = dineIn ? '' : 'none';
+            pickupWrap.style.display = dineIn ? 'none' : '';
+            tableNumber.required = dineIn;
+        }
+
+        orderType.addEventListener('change', syncOrderTypeFields);
+        syncOrderTypeFields();
     </script>
 @endsection

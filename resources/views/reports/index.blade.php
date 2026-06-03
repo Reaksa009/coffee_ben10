@@ -155,6 +155,9 @@
                     <a href="{{ route('reports.products') }}" class="btn btn-outline-primary">
                         <i class="bi bi-box-seam me-2"></i> Product Performance
                     </a>
+                    <a href="{{ route('reports.daily-close') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-calendar-check me-2"></i> Daily Close Report
+                    </a>
                     <a href="{{ route('reports.export', ['type' => 'sales']) }}" class="btn btn-outline-primary">
                         <i class="bi bi-download me-2"></i> Export Sales (CSV)
                     </a>

@@ -109,6 +109,80 @@
                     </div>
                 </div>
             </div>
+
+            <?php
+                $recipeRows = old('ingredients');
+
+                if ($recipeRows === null) {
+                    $recipeRows = [];
+
+                    if (isset($product)) {
+                        foreach ($product->ingredients as $ingredient) {
+                            $recipeRows[] = [
+                                'inventory_item_id' => $ingredient->inventory_item_id,
+                                'quantity' => $ingredient->quantity,
+                                'unit' => $ingredient->unit,
+                            ];
+                        }
+                    }
+                }
+
+                if (count($recipeRows) === 0) {
+                    $recipeRows = [['inventory_item_id' => '', 'quantity' => '', 'unit' => '']];
+                }
+            ?>
+
+            <div class="border-top pt-4 mt-2">
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                    <div>
+                        <h2 class="h5 fw-bold mb-1">Recipe / Product Costing</h2>
+                        <p class="text-muted small mb-0">Add ingredients used for one drink so cost and profit margin can be calculated.</p>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-ingredient-row">
+                        <i class="bi bi-plus-lg me-1"></i> Ingredient
+                    </button>
+                </div>
+
+                @if($inventoryItems->isEmpty())
+                    <div class="alert alert-warning small">
+                        Add inventory items first to build a recipe.
+                    </div>
+                @endif
+
+                <div id="ingredient-rows" class="d-grid gap-2">
+                    @foreach($recipeRows as $index => $row)
+                        <div class="row g-2 align-items-end ingredient-row">
+                            <div class="col-md-5">
+                                <label class="form-label small">Ingredient</label>
+                                <select name="ingredients[{{ $index }}][inventory_item_id]" class="form-select ingredient-select">
+                                    <option value="">Select ingredient</option>
+                                    @foreach($inventoryItems as $item)
+                                        <option value="{{ $item->id }}" data-unit="{{ $item->unit }}"
+                                            @selected((string) ($row['inventory_item_id'] ?? '') === (string) $item->id)>
+                                            {{ $item->name }} - ${{ number_format($item->unit_cost, 4) }}/{{ $item->unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Quantity</label>
+                                <input type="number" step="0.001" min="0" name="ingredients[{{ $index }}][quantity]"
+                                    class="form-control" value="{{ $row['quantity'] ?? '' }}" placeholder="18">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Unit</label>
+                                <input type="text" name="ingredients[{{ $index }}][unit]" class="form-control ingredient-unit"
+                                    value="{{ $row['unit'] ?? '' }}" placeholder="g">
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-outline-danger w-100 remove-ingredient-row" title="Remove ingredient">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
 
@@ -135,3 +209,90 @@
         </div>
     </div>
 </div>
+
+<template id="ingredient-row-template">
+    <div class="row g-2 align-items-end ingredient-row">
+        <div class="col-md-5">
+            <label class="form-label small">Ingredient</label>
+            <select class="form-select ingredient-select" data-name="inventory_item_id">
+                <option value="">Select ingredient</option>
+                @foreach($inventoryItems as $item)
+                    <option value="{{ $item->id }}" data-unit="{{ $item->unit }}">
+                        {{ $item->name }} - ${{ number_format($item->unit_cost, 4) }}/{{ $item->unit }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Quantity</label>
+            <input type="number" step="0.001" min="0" class="form-control" data-name="quantity" placeholder="18">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Unit</label>
+            <input type="text" class="form-control ingredient-unit" data-name="unit" placeholder="g">
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-outline-danger w-100 remove-ingredient-row" title="Remove ingredient">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </div>
+</template>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.getElementById('ingredient-rows');
+        const addButton = document.getElementById('add-ingredient-row');
+        const template = document.getElementById('ingredient-row-template');
+
+        if (!rows || !addButton || !template) {
+            return;
+        }
+
+        function indexRows() {
+            rows.querySelectorAll('.ingredient-row').forEach(function (row, index) {
+                row.querySelectorAll('[data-name]').forEach(function (field) {
+                    field.name = 'ingredients[' + index + '][' + field.dataset.name + ']';
+                });
+            });
+        }
+
+        function fillUnit(select) {
+            const option = select.options[select.selectedIndex];
+            const unit = option ? option.dataset.unit : '';
+            const row = select.closest('.ingredient-row');
+            const unitInput = row ? row.querySelector('.ingredient-unit') : null;
+
+            if (unitInput && !unitInput.value) {
+                unitInput.value = unit || '';
+            }
+        }
+
+        addButton.addEventListener('click', function () {
+            rows.appendChild(template.content.cloneNode(true));
+            indexRows();
+        });
+
+        rows.addEventListener('click', function (event) {
+            const removeButton = event.target.closest('.remove-ingredient-row');
+
+            if (!removeButton) {
+                return;
+            }
+
+            const row = removeButton.closest('.ingredient-row');
+            if (row && rows.querySelectorAll('.ingredient-row').length > 1) {
+                row.remove();
+                indexRows();
+            }
+        });
+
+        rows.addEventListener('change', function (event) {
+            if (event.target.matches('.ingredient-select')) {
+                fillUnit(event.target);
+            }
+        });
+
+        indexRows();
+    });
+</script>

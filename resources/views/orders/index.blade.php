@@ -37,6 +37,7 @@
                         <tr>
                             <th>Order</th>
                             <th>Customer</th>
+                            <th>Type</th>
                             <th>Items</th>
                             <th>Total</th>
                             <th>Status</th>
@@ -54,6 +55,12 @@
                                         <div class="small text-muted">{{ $order->customer->phone }}</div>
                                     @else
                                         <span class="text-muted">Walk-in</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ $order->order_type_label }}</div>
+                                    @if($order->service_label)
+                                        <div class="small text-muted">{{ $order->service_label }}</div>
                                     @endif
                                 </td>
                                 <td>
@@ -77,9 +84,14 @@
                                 </td>
                                 <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
                                 <td class="text-end">
-                                    <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye me-1"></i> View
-                                    </a>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye me-1"></i> View
+                                        </a>
+                                        <a href="{{ route('pos.receipt', ['id' => $order->id, 'print' => 1]) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-printer me-1"></i> Print
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

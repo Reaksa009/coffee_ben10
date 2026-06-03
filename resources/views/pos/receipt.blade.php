@@ -309,7 +309,8 @@
 
         @media print {
             @page {
-                margin: 12mm;
+                size: {{ $settings->receipt_width_mm ?? 80 }}mm auto;
+                margin: 4mm;
             }
 
             body {
@@ -336,7 +337,7 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 100% !important;
-                max-width: 100% !important;
+                max-width: {{ $settings->receipt_width_mm ?? 80 }}mm !important;
             }
 
             .col-12,
@@ -359,16 +360,29 @@
                 page-break-inside: avoid;
             }
 
+            .page-header-modern {
+                margin-bottom: 4mm !important;
+                padding: 0 0 3mm !important;
+                text-align: center;
+            }
+
+            .summary-card {
+                margin-top: 4mm;
+            }
+
             .receipt-title {
                 color: #111827 !important;
                 background: none !important;
                 -webkit-text-fill-color: #111827;
+                font-size: 18px !important;
             }
 
             .table-modern th,
             .table-modern td {
                 color: #111827 !important;
                 border-color: #d1d5db !important;
+                font-size: 11px !important;
+                padding: 4px !important;
             }
         }
     </style>
@@ -400,6 +414,13 @@
                 Receipt {{ $order->display_order_label }}
             </h1>
             <div class="receipt-date">
+                <strong>{{ $settings->shop_name ?? config('app.name', 'Coffee Ben10') }}</strong>
+                @if(!empty($settings->address))
+                    <span class="d-block">{{ $settings->address }}</span>
+                @endif
+                @if(!empty($settings->phone))
+                    <span class="d-block">{{ $settings->phone }}</span>
+                @endif
                 <i class="bi bi-calendar3 me-1"></i>
                 Created {{ $order->created_at->format('M d, Y H:i') }}
             </div>
@@ -542,6 +563,16 @@
                     <span>Subtotal</span>
                     <span>${{ number_format($subtotalAmount, 2) }}</span>
                 </div>
+                <div class="d-flex justify-content-between small mt-2">
+                    <span>Order Type</span>
+                    <span>{{ $order->order_type_label }}</span>
+                </div>
+                @if($order->service_label)
+                    <div class="d-flex justify-content-between small mt-2">
+                        <span>{{ $order->order_type === 'dine_in' ? 'Table' : 'Name' }}</span>
+                        <span>{{ $order->service_label }}</span>
+                    </div>
+                @endif
                 @if($promoDiscountAmount > 0)
                     <div class="d-flex justify-content-between small mt-2">
                         <span>Promo @if($order->promo)({{ $order->promo->code }})@endif</span>
@@ -576,6 +607,9 @@
                         {{ ucfirst($order->status) }}
                     </span>
                 </div>
+                @if(!empty($settings->receipt_footer))
+                    <div class="small text-center opacity-75 mt-3">{{ $settings->receipt_footer }}</div>
+                @endif
             </div>
 
             <!-- KHQR Payment Section (Only when pending) -->

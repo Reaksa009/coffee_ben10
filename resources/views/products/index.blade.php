@@ -219,6 +219,21 @@
                                         <span class="badge text-bg-light border">L: ${{ number_format($product->large_price ?? $product->price, 2) }}</span>
                                     </div>
 
+                                    @php
+                                        $recipeCost = $product->recipeCost();
+                                        $margin = $product->profitMargin();
+                                    @endphp
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="badge text-bg-light border">
+                                            Cost: ${{ number_format($recipeCost, 2) }}
+                                        </span>
+                                        @if($margin !== null)
+                                            <span class="badge {{ $margin >= 50 ? 'text-bg-success' : ($margin >= 25 ? 'text-bg-warning' : 'text-bg-danger') }}">
+                                                Margin: {{ number_format($margin, 1) }}%
+                                            </span>
+                                        @endif
+                                    </div>
+
                                     <div class="product-stock-row">
                                         @if($product->stock <= 0)
                                             <span class="badge text-bg-danger">Out of stock</span>

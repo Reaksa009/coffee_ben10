@@ -18,6 +18,7 @@ class Order extends DatabaseModel
         'loyalty_points_redeemed' => 0,
         'loyalty_points_earned' => 0,
         'payment_method' => 'khqr',
+        'order_type' => 'takeaway',
     ];
 
     protected $fillable = [
@@ -38,6 +39,9 @@ class Order extends DatabaseModel
         'loyalty_points_earned',
         'loyalty_awarded_at',
         'payment_method',
+        'order_type',
+        'table_number',
+        'pickup_name',
     ];
 
     protected $casts = [
@@ -61,6 +65,28 @@ class Order extends DatabaseModel
     public function getDisplayOrderLabelAttribute(): string
     {
         return '#'.$this->display_order_number;
+    }
+
+    public function getOrderTypeLabelAttribute(): string
+    {
+        return match ($this->order_type) {
+            'dine_in' => 'Dine-in',
+            'delivery' => 'Delivery',
+            default => 'Takeaway',
+        };
+    }
+
+    public function getServiceLabelAttribute(): ?string
+    {
+        if ($this->order_type === 'dine_in' && $this->table_number) {
+            return 'Table ' . $this->table_number;
+        }
+
+        if (in_array($this->order_type, ['takeaway', 'delivery'], true) && $this->pickup_name) {
+            return $this->pickup_name;
+        }
+
+        return null;
     }
 
     public function setOrderDateAttribute($value): void

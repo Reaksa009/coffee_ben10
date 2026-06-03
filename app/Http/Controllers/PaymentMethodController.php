@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\ActivityLogger;
 use App\Services\TelegramNotificationService;
 
 class PaymentMethodController extends Controller
@@ -54,9 +55,15 @@ class PaymentMethodController extends Controller
 
         $order->update(['status' => 'paid', 'payment_method' => 'cash']);
         $this->sendTelegramAlertOnce($payment->fresh());
+        ActivityLogger::log('payment.processed', 'Processed cash payment for order ' . $order->display_order_label, $payment, [
+            'order_id' => $order->id,
+            'amount' => $payment->amount,
+            'payment_method' => 'cash',
+        ]);
 
         return redirect()
             ->route('pos.receipt', ['id' => $order->id])
+            ->with('print_receipt', true)
             ->with('success', 'Payment received. Order complete.');
     }
 
@@ -85,9 +92,15 @@ class PaymentMethodController extends Controller
 
         $order->update(['status' => 'paid', 'payment_method' => 'card']);
         $this->sendTelegramAlertOnce($payment->fresh());
+        ActivityLogger::log('payment.processed', 'Processed card payment for order ' . $order->display_order_label, $payment, [
+            'order_id' => $order->id,
+            'amount' => $payment->amount,
+            'payment_method' => 'card',
+        ]);
 
         return redirect()
             ->route('pos.receipt', ['id' => $order->id])
+            ->with('print_receipt', true)
             ->with('success', 'Card payment processed successfully.');
     }
 
@@ -116,9 +129,15 @@ class PaymentMethodController extends Controller
 
         $order->update(['status' => 'paid', 'payment_method' => 'wallet']);
         $this->sendTelegramAlertOnce($payment->fresh());
+        ActivityLogger::log('payment.processed', 'Processed wallet payment for order ' . $order->display_order_label, $payment, [
+            'order_id' => $order->id,
+            'amount' => $payment->amount,
+            'payment_method' => 'wallet',
+        ]);
 
         return redirect()
             ->route('pos.receipt', ['id' => $order->id])
+            ->with('print_receipt', true)
             ->with('success', 'Wallet payment processed successfully.');
     }
 

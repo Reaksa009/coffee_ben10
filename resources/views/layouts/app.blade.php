@@ -152,6 +152,59 @@
             width: 1.1rem;
         }
 
+        .sidebar-dropdown-toggle {
+            background: transparent;
+            border: 0;
+            text-align: left;
+            width: 100%;
+        }
+
+        .sidebar-caret {
+            margin-left: auto;
+            transition: transform .18s ease;
+            width: auto;
+        }
+
+        .sidebar-dropdown-toggle[aria-expanded="true"] .sidebar-caret {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-submenu {
+            display: grid;
+            gap: .5rem;
+            margin: .25rem 0 .65rem;
+            padding-left: 1rem;
+        }
+
+        .sidebar-submenu .nav-link {
+            background: #fff7d6;
+            border: 1px solid #f1df9b;
+            color: #3f2d12;
+            margin-bottom: 0;
+            padding: .62rem .7rem;
+        }
+
+        .sidebar-submenu .nav-link:hover {
+            background: #ffef9a;
+            border-color: #e3c76a;
+            color: #2d1d07;
+        }
+
+        .sidebar-submenu .nav-link.active {
+            background: #fff08a;
+            border-color: #e0bd43;
+            color: #201402;
+            font-weight: 800;
+        }
+
+        .sidebar-submenu .nav-link.disabled {
+            background: #f8fafc;
+            border-color: var(--line);
+            color: #94a3b8;
+            cursor: not-allowed;
+            opacity: 1;
+        }
+
         .sidebar-profile {
             border: 1px solid #e5e7eb;
             border-radius: .5rem;
@@ -497,6 +550,14 @@
 
 <body>
     @auth
+        @php
+            $settingsOpen = Request::routeIs('categories.*')
+                || Request::routeIs('products.*')
+                || Request::routeIs('promos.*')
+                || Request::routeIs('inventory.*')
+                || Request::routeIs('shop-settings.*');
+            $purchaseOpen = Request::routeIs('suppliers.*') || Request::routeIs('purchases.*');
+        @endphp
         <nav class="navbar navbar-expand-lg navbar-light app-topbar sticky-top">
             <div class="container-fluid">
                 <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="offcanvas"
@@ -557,11 +618,45 @@
                             href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link {{ Request::routeIs('pos.*') ? 'active' : '' }}"
                             href="{{ route('pos.index') }}"><i class="bi bi-cup-hot"></i> POS</a></li>
+                    <li class="nav-item"><a class="nav-link {{ Request::routeIs('cashier-shifts.*') ? 'active' : '' }}"
+                            href="{{ route('cashier-shifts.index') }}"><i class="bi bi-cash-stack"></i> Shift Closing</a></li>
                     @if(auth()->user()->canManageBackOffice())
-                        <li class="nav-item"><a class="nav-link {{ Request::routeIs('products.*') ? 'active' : '' }}"
-                                href="{{ route('products.index') }}"><i class="bi bi-box-seam"></i> Products</a></li>
-                        <li class="nav-item"><a class="nav-link {{ Request::routeIs('categories.*') ? 'active' : '' }}"
-                                href="{{ route('categories.index') }}"><i class="bi bi-tags"></i> Categories</a></li>
+                        <li class="nav-item">
+                            <button class="nav-link sidebar-dropdown-toggle {{ $settingsOpen ? 'active' : '' }}" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#mobileSettingsMenu"
+                                aria-expanded="{{ $settingsOpen ? 'true' : 'false' }}" aria-controls="mobileSettingsMenu">
+                                <i class="bi bi-gear-fill"></i> Settings <i class="bi bi-chevron-down sidebar-caret"></i>
+                            </button>
+                            <div id="mobileSettingsMenu" class="collapse {{ $settingsOpen ? 'show' : '' }}">
+                                <div class="sidebar-submenu">
+                                    <a class="nav-link {{ Request::routeIs('categories.*') ? 'active' : '' }}"
+                                        href="{{ route('categories.index') }}"><i class="bi bi-tags"></i> Categories</a>
+                                    <a class="nav-link {{ Request::routeIs('products.*') ? 'active' : '' }}"
+                                        href="{{ route('products.index') }}"><i class="bi bi-box-seam"></i> Products</a>
+                                    <a class="nav-link {{ Request::routeIs('promos.*') ? 'active' : '' }}"
+                                        href="{{ route('promos.index') }}"><i class="bi bi-percent"></i> Discounts</a>
+                                    <a class="nav-link {{ Request::routeIs('inventory.*') ? 'active' : '' }}"
+                                        href="{{ route('inventory.index') }}"><i class="bi bi-boxes"></i> Inventory</a>
+                                    <a class="nav-link {{ Request::routeIs('shop-settings.*') ? 'active' : '' }}"
+                                        href="{{ route('shop-settings.edit') }}"><i class="bi bi-shop"></i> Shop Settings</a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link sidebar-dropdown-toggle {{ $purchaseOpen ? 'active' : '' }}" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#mobilePurchaseMenu"
+                                aria-expanded="{{ $purchaseOpen ? 'true' : 'false' }}" aria-controls="mobilePurchaseMenu">
+                                <i class="bi bi-bag-fill"></i> Purchase Management <i class="bi bi-chevron-down sidebar-caret"></i>
+                            </button>
+                            <div id="mobilePurchaseMenu" class="collapse {{ $purchaseOpen ? 'show' : '' }}">
+                                <div class="sidebar-submenu">
+                                    <a class="nav-link {{ Request::routeIs('suppliers.*') ? 'active' : '' }}"
+                                        href="{{ route('suppliers.index') }}"><i class="bi bi-info-circle-fill"></i> Supplier Info</a>
+                                    <a class="nav-link {{ Request::routeIs('purchases.*') ? 'active' : '' }}"
+                                        href="{{ route('purchases.index') }}"><i class="bi bi-basket-fill"></i> Purchase Info</a>
+                                </div>
+                            </div>
+                        </li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('orders.*') ? 'active' : '' }}"
                                 href="{{ route('orders.index') }}"><i class="bi bi-receipt"></i> Orders</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('customers.*') ? 'active' : '' }}"
@@ -572,10 +667,12 @@
                         @endif
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('payments.*') ? 'active' : '' }}"
                                 href="{{ route('payments.index') }}"><i class="bi bi-credit-card"></i> Payments</a></li>
-                        <li class="nav-item"><a class="nav-link {{ Request::routeIs('promos.*') ? 'active' : '' }}"
-                                href="{{ route('promos.index') }}"><i class="bi bi-tag"></i> Promos</a></li>
                         <li class="nav-item"><a class="nav-link {{ Request::routeIs('reports.*') ? 'active' : '' }}"
                                 href="{{ route('reports.index') }}"><i class="bi bi-graph-up"></i> Reports</a></li>
+                        <li class="nav-item"><a class="nav-link {{ Request::routeIs('activity-logs.*') ? 'active' : '' }}"
+                                href="{{ route('activity-logs.index') }}"><i class="bi bi-clock-history"></i> Activity Log</a></li>
+                        <li class="nav-item"><a class="nav-link {{ Request::routeIs('backup.*') ? 'active' : '' }}"
+                                href="{{ route('backup.index') }}"><i class="bi bi-download"></i> Backup</a></li>
                     @endif
                 </ul>
 
@@ -612,14 +709,46 @@
                             <a class="nav-link {{ Request::routeIs('pos.*') ? 'active' : '' }}"
                                 href="{{ route('pos.index') }}"><i class="bi bi-cup-hot"></i> POS</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::routeIs('cashier-shifts.*') ? 'active' : '' }}"
+                                href="{{ route('cashier-shifts.index') }}"><i class="bi bi-cash-stack"></i> Shift Closing</a>
+                        </li>
                         @if(auth()->user()->canManageBackOffice())
                             <li class="nav-item">
-                                <a class="nav-link {{ Request::routeIs('products.*') ? 'active' : '' }}"
-                                    href="{{ route('products.index') }}"><i class="bi bi-box-seam"></i> Products</a>
+                                <button class="nav-link sidebar-dropdown-toggle {{ $settingsOpen ? 'active' : '' }}" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#desktopSettingsMenu"
+                                    aria-expanded="{{ $settingsOpen ? 'true' : 'false' }}" aria-controls="desktopSettingsMenu">
+                                    <i class="bi bi-gear-fill"></i> Settings <i class="bi bi-chevron-down sidebar-caret"></i>
+                                </button>
+                                <div id="desktopSettingsMenu" class="collapse {{ $settingsOpen ? 'show' : '' }}">
+                                    <div class="sidebar-submenu">
+                                        <a class="nav-link {{ Request::routeIs('categories.*') ? 'active' : '' }}"
+                                            href="{{ route('categories.index') }}"><i class="bi bi-tags"></i> Categories</a>
+                                        <a class="nav-link {{ Request::routeIs('products.*') ? 'active' : '' }}"
+                                            href="{{ route('products.index') }}"><i class="bi bi-box-seam"></i> Products</a>
+                                        <a class="nav-link {{ Request::routeIs('promos.*') ? 'active' : '' }}"
+                                            href="{{ route('promos.index') }}"><i class="bi bi-percent"></i> Discounts</a>
+                                        <a class="nav-link {{ Request::routeIs('inventory.*') ? 'active' : '' }}"
+                                            href="{{ route('inventory.index') }}"><i class="bi bi-boxes"></i> Inventory</a>
+                                        <a class="nav-link {{ Request::routeIs('shop-settings.*') ? 'active' : '' }}"
+                                            href="{{ route('shop-settings.edit') }}"><i class="bi bi-shop"></i> Shop Settings</a>
+                                    </div>
+                                </div>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ Request::routeIs('categories.*') ? 'active' : '' }}"
-                                    href="{{ route('categories.index') }}"><i class="bi bi-tags"></i> Categories</a>
+                                <button class="nav-link sidebar-dropdown-toggle {{ $purchaseOpen ? 'active' : '' }}" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#desktopPurchaseMenu"
+                                    aria-expanded="{{ $purchaseOpen ? 'true' : 'false' }}" aria-controls="desktopPurchaseMenu">
+                                    <i class="bi bi-bag-fill"></i> Purchase Management <i class="bi bi-chevron-down sidebar-caret"></i>
+                                </button>
+                                <div id="desktopPurchaseMenu" class="collapse {{ $purchaseOpen ? 'show' : '' }}">
+                                    <div class="sidebar-submenu">
+                                        <a class="nav-link {{ Request::routeIs('suppliers.*') ? 'active' : '' }}"
+                                            href="{{ route('suppliers.index') }}"><i class="bi bi-info-circle-fill"></i> Supplier Info</a>
+                                        <a class="nav-link {{ Request::routeIs('purchases.*') ? 'active' : '' }}"
+                                            href="{{ route('purchases.index') }}"><i class="bi bi-basket-fill"></i> Purchase Info</a>
+                                    </div>
+                                </div>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::routeIs('orders.*') ? 'active' : '' }}"
@@ -645,12 +774,16 @@
                                         class="bi bi-credit-card"></i> Payments</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ Request::routeIs('promos.*') ? 'active' : '' }}" href="{{ route('promos.index') }}"><i
-                                        class="bi bi-tag"></i> Promos</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link {{ Request::routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}"><i
                                         class="bi bi-graph-up"></i> Reports</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::routeIs('activity-logs.*') ? 'active' : '' }}"
+                                    href="{{ route('activity-logs.index') }}"><i class="bi bi-clock-history"></i> Activity Log</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::routeIs('backup.*') ? 'active' : '' }}"
+                                    href="{{ route('backup.index') }}"><i class="bi bi-download"></i> Backup</a>
                             </li>
                         @endif
                     </ul>

@@ -8,9 +8,11 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Promo;
+use App\Models\ShopSetting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\LoyaltyService;
+use App\Services\ActivityLogger;
 
 class POSController extends Controller
 {
@@ -157,7 +159,11 @@ class POSController extends Controller
             'customer_phone' => ['nullable', 'string', 'max:40'],
             'redeem_points' => ['nullable', 'boolean'],
             'promo_code' => ['nullable', 'string', 'max:80'],
+            'order_type' => ['nullable', 'in:dine_in,takeaway,delivery'],
+            'table_number' => ['nullable', 'required_if:order_type,dine_in', 'string', 'max:40'],
+            'pickup_name' => ['nullable', 'string', 'max:120'],
         ]);
+        $customerInput['order_type'] = $customerInput['order_type'] ?? 'takeaway';
 
         $cart = session()->get('cart', []);
         if (empty($cart)) {
@@ -202,7 +208,7 @@ class POSController extends Controller
                 $dailyOrderNumber = $this->nextDailyOrderNumber($orderDate);
 
                 foreach ($cart as $item) {
-                    $product = Product::whereKey($item['product_id'])->firstOrFail();
+                    $product = Product::with('ingredients.inventoryItem')->whereKey($item['product_id'])->firstOrFail();
                     $quantity = max(1, (int) $item['quantity']);
                     $availableStock = (int) $product->stock;
 
@@ -212,6 +218,23 @@ class POSController extends Controller
 
                     $product->stock = $availableStock - $quantity;
                     $product->save();
+
+                    foreach ($product->ingredients as $ingredient) {
+                        $inventoryItem = $ingredient->inventoryItem;
+
+                        if (! $inventoryItem) {
+                            continue;
+                        }
+
+                        $neededQuantity = (float) $ingredient->quantity * $quantity;
+
+                        if ($inventoryItem->quantity_on_hand < $neededQuantity) {
+                            throw new \RuntimeException('Insufficient ingredient stock for ' . $inventoryItem->name);
+                        }
+
+                        $inventoryItem->quantity_on_hand = round($inventoryItem->quantity_on_hand - $neededQuantity, 3);
+                        $inventoryItem->save();
+                    }
                 }
 
                 $order = Order::create([
@@ -228,6 +251,9 @@ class POSController extends Controller
                     'loyalty_discount_amount' => $redemption['discount'],
                     'loyalty_points_redeemed' => $redemption['points'],
                     'promo_id' => $promo?->id,
+                    'order_type' => $customerInput['order_type'],
+                    'table_number' => $customerInput['order_type'] === 'dine_in' ? $customerInput['table_number'] : null,
+                    'pickup_name' => $customerInput['order_type'] !== 'dine_in' ? ($customerInput['pickup_name'] ?? null) : null,
                     'status' => 'pending',
                 ]);
 
@@ -259,13 +285,20 @@ class POSController extends Controller
         session()->forget('promo_code');
         session()->forget('discount_amount');
 
+        ActivityLogger::log('order.created', 'Created order ' . $order->display_order_label, $order, [
+            'total_amount' => $order->total_amount,
+            'order_type' => $order->order_type,
+        ]);
+
         return redirect()->route('pos.receipt', ['id' => $order->id]);
     }
 
     public function receipt($id)
     {
         $order = Order::with('items.product', 'payments', 'promo')->findOrFail($id);
-        return view('pos.receipt', compact('order'));
+        $settings = ShopSetting::current();
+
+        return view('pos.receipt', compact('order', 'settings'));
     }
 
     public function applyPromo(Request $request)

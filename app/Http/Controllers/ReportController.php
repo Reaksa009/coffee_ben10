@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\InventoryItem;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\View\View;
@@ -137,6 +139,81 @@ class ReportController extends Controller
             ->all();
 
         return view('reports.products', compact('products', 'productChartData', 'startDate', 'endDate'));
+    }
+
+    public function dailyClose(Request $request): View
+    {
+        $date = Carbon::parse($request->query('date', now()))->toDateString();
+        $startDate = Carbon::parse($date)->startOfDay();
+        $endDate = $startDate->copy()->endOfDay();
+
+        $orders = Order::query()
+            ->with('items.product', 'promo')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+
+        $paidOrders = $orders->where('status', 'paid');
+        $summary = [
+            'total_orders' => $orders->count(),
+            'paid_orders' => $paidOrders->count(),
+            'revenue' => $paidOrders->sum('total_amount'),
+            'discounts' => $orders->sum('discount_amount'),
+            'average_order' => $paidOrders->count() ? $paidOrders->sum('total_amount') / $paidOrders->count() : 0,
+        ];
+
+        $paymentMethods = Payment::query()
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(fn ($payment) => $payment->payment_method ?: 'unknown')
+            ->map(fn ($payments, $method) => [
+                'method' => ucfirst($method),
+                'count' => $payments->count(),
+                'total' => $payments->sum('amount'),
+            ])
+            ->values();
+
+        $bestSellers = OrderItem::query()
+            ->with('product')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy('product_id')
+            ->map(function ($items) {
+                $first = $items->first();
+
+                return [
+                    'name' => $first->product?->name ?? 'Product #' . $first->product_id,
+                    'quantity' => $items->sum('quantity'),
+                    'revenue' => $items->sum('line_total'),
+                ];
+            })
+            ->sortByDesc('quantity')
+            ->take(10)
+            ->values();
+
+        $discountsUsed = $orders
+            ->filter(fn ($order) => $order->discount_amount > 0)
+            ->groupBy(fn ($order) => $order->promo?->code ?: 'Loyalty / Manual')
+            ->map(fn ($discountOrders, $label) => [
+                'label' => $label,
+                'orders' => $discountOrders->count(),
+                'amount' => $discountOrders->sum('discount_amount'),
+            ])
+            ->values();
+
+        $lowStockItems = InventoryItem::query()
+            ->orderBy('name')
+            ->get()
+            ->filter->is_low_stock
+            ->values();
+
+        return view('reports.daily-close', compact(
+            'date',
+            'summary',
+            'paymentMethods',
+            'bestSellers',
+            'discountsUsed',
+            'lowStockItems'
+        ));
     }
 
     public function export(Request $request)

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Closure;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\InventoryItem;
 use App\Models\Product;
+use App\Services\ActivityLogger;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -17,7 +19,7 @@ class ProductController extends Controller
         $selectedCategory = request('category');
         $selectedCategoryIds = Category::idsForName($selectedCategory);
         $products = Product::query()
-            ->with('category')
+            ->with('category', 'ingredients.inventoryItem')
             ->when($selectedCategory, function ($query) use ($selectedCategoryIds) {
                 return $selectedCategoryIds->isEmpty()
                     ? $query->whereKey('__missing_category__')
@@ -34,8 +36,9 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::query()->orderBy('name')->get();
+        $inventoryItems = InventoryItem::query()->orderBy('name')->get();
 
-        return view('products.create', compact('categories'));
+        return view('products.create', compact('categories', 'inventoryItems'));
     }
 
     public function store(Request $request)
@@ -53,21 +56,33 @@ class ProductController extends Controller
             'large_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048',
+            'ingredients' => 'nullable|array',
+            'ingredients.*.inventory_item_id' => $this->inventoryItemIdRules(),
+            'ingredients.*.quantity' => 'nullable|numeric|min:0',
+            'ingredients.*.unit' => 'nullable|string|max:30',
         ]);
+
+        $ingredients = $this->normalizedIngredients($data['ingredients'] ?? []);
+        unset($data['ingredients']);
 
         $data = $this->normalizeProductData($data);
         $data = $this->withUploadedImage($request, $data);
 
-        Product::create($data);
+        $product = Product::create($data);
+        $this->syncIngredients($product, $ingredients);
+
+        ActivityLogger::log('product.created', 'Created product ' . $product->name, $product);
+
         return redirect()->route('products.index')->with('success', 'Product created');
     }
 
     public function edit(Product $product)
     {
-        $product->load('category');
+        $product->load('category', 'ingredients.inventoryItem');
         $categories = Category::query()->orderBy('name')->get();
+        $inventoryItems = InventoryItem::query()->orderBy('name')->get();
 
-        return view('products.edit', compact('product', 'categories'));
+        return view('products.edit', compact('product', 'categories', 'inventoryItems'));
     }
 
     public function image(Product $product)
@@ -103,9 +118,17 @@ class ProductController extends Controller
             'large_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048',
+            'ingredients' => 'nullable|array',
+            'ingredients.*.inventory_item_id' => $this->inventoryItemIdRules(),
+            'ingredients.*.quantity' => 'nullable|numeric|min:0',
+            'ingredients.*.unit' => 'nullable|string|max:30',
         ]);
 
+        $ingredients = $this->normalizedIngredients($data['ingredients'] ?? []);
+        unset($data['ingredients']);
+
         $data = $this->normalizeProductData($data);
+        $oldPrices = $product->only(['price', 'small_price', 'medium_price', 'large_price']);
 
         if ($request->hasFile('image') && $product->image && ! $product->image_data) {
             Storage::disk('public')->delete($product->image);
@@ -114,6 +137,18 @@ class ProductController extends Controller
         $data = $this->withUploadedImage($request, $data);
 
         $product->update($data);
+        $this->syncIngredients($product, $ingredients);
+
+        $newPrices = $product->fresh()->only(['price', 'small_price', 'medium_price', 'large_price']);
+        if ($oldPrices != $newPrices) {
+            ActivityLogger::log('product.price_changed', 'Changed price for ' . $product->name, $product, [
+                'old' => $oldPrices,
+                'new' => $newPrices,
+            ]);
+        }
+
+        ActivityLogger::log('product.updated', 'Updated product ' . $product->name, $product);
+
         return redirect()->route('products.index')->with('success', 'Product updated');
     }
 
@@ -123,7 +158,11 @@ class ProductController extends Controller
             Storage::disk('public')->delete($product->image);
         }
 
+        $name = $product->name;
         $product->delete();
+
+        ActivityLogger::log('product.deleted', 'Archived product ' . $name, $product);
+
         return redirect()->route('products.index')->with('success', 'Product archived successfully');
     }
 
@@ -161,6 +200,48 @@ class ProductController extends Controller
                 }
             },
         ];
+    }
+
+    private function inventoryItemIdRules(): array
+    {
+        return [
+            'nullable',
+            function (string $attribute, mixed $value, Closure $fail): void {
+                if (($value !== null && $value !== '') && ! InventoryItem::whereKey($value)->exists()) {
+                    $fail('The selected inventory item is invalid.');
+                }
+            },
+        ];
+    }
+
+    private function normalizedIngredients(array $ingredients): array
+    {
+        return collect($ingredients)
+            ->filter(function ($row) {
+                return ! empty($row['inventory_item_id']) && (float) ($row['quantity'] ?? 0) > 0;
+            })
+            ->map(function ($row) {
+                $inventoryItem = InventoryItem::find($row['inventory_item_id']);
+
+                return [
+                    'inventory_item_id' => $row['inventory_item_id'],
+                    'quantity' => (float) $row['quantity'],
+                    'unit' => $row['unit'] ?: ($inventoryItem?->unit ?? 'unit'),
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    private function syncIngredients(Product $product, array $ingredients): void
+    {
+        $product->ingredients()->delete();
+
+        if ($ingredients === []) {
+            return;
+        }
+
+        $product->ingredients()->createMany($ingredients);
     }
 
     private function withUploadedImage(Request $request, array $data): array
