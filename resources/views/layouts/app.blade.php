@@ -247,6 +247,61 @@
             vertical-align: middle;
         }
 
+        .app-alert {
+            align-items: flex-start;
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--brand);
+            border-radius: .5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: .8rem;
+            margin-bottom: 1rem;
+            padding: .95rem 1rem;
+        }
+
+        .app-alert-success {
+            background: linear-gradient(135deg, #ecfdf5, #ffffff);
+            border-left-color: #10b981;
+        }
+
+        .app-alert-error {
+            background: linear-gradient(135deg, #fef2f2, #ffffff);
+            border-left-color: #ef4444;
+        }
+
+        .app-alert-icon {
+            align-items: center;
+            border-radius: .5rem;
+            display: inline-flex;
+            flex: 0 0 auto;
+            height: 38px;
+            justify-content: center;
+            width: 38px;
+        }
+
+        .app-alert-success .app-alert-icon {
+            background: rgba(16, 185, 129, .12);
+            color: #047857;
+        }
+
+        .app-alert-error .app-alert-icon {
+            background: rgba(239, 68, 68, .12);
+            color: #b91c1c;
+        }
+
+        .app-alert-title {
+            font-size: .86rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: .15rem;
+        }
+
+        .app-alert-message {
+            color: var(--muted);
+            font-size: .92rem;
+            line-height: 1.4;
+        }
+
         .empty-state {
             color: var(--muted);
             padding: 2rem 1rem;
@@ -578,10 +633,22 @@
 
                 <main class="col-12 col-md-10 ms-sm-auto px-4 py-4">
                     @if(session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
+                        <div class="app-alert app-alert-error" role="alert">
+                            <span class="app-alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
+                            <span>
+                                <span class="app-alert-title d-block">Action needed</span>
+                                <span class="app-alert-message">{{ session('error') }}</span>
+                            </span>
+                        </div>
                     @endif
-                    @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @if(session('success') && ! Request::routeIs('pos.receipt'))
+                        <div class="app-alert app-alert-success" role="status">
+                            <span class="app-alert-icon"><i class="bi bi-check-circle-fill"></i></span>
+                            <span>
+                                <span class="app-alert-title d-block">Success</span>
+                                <span class="app-alert-message">{{ session('success') }}</span>
+                            </span>
+                        </div>
                     @endif
 
                     @yield('content')
@@ -595,10 +662,22 @@
     @else
         <main class="container py-5">
             @if(session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
+                <div class="app-alert app-alert-error" role="alert">
+                    <span class="app-alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
+                    <span>
+                        <span class="app-alert-title d-block">Action needed</span>
+                        <span class="app-alert-message">{{ session('error') }}</span>
+                    </span>
+                </div>
             @endif
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
+            @if(session('success') && ! Request::routeIs('pos.receipt'))
+                <div class="app-alert app-alert-success" role="status">
+                    <span class="app-alert-icon"><i class="bi bi-check-circle-fill"></i></span>
+                    <span>
+                        <span class="app-alert-title d-block">Success</span>
+                        <span class="app-alert-message">{{ session('success') }}</span>
+                    </span>
+                </div>
             @endif
 
             @yield('content')

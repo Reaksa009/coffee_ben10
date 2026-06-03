@@ -225,6 +225,68 @@
             filter: brightness(0) invert(1);
         }
 
+        .payment-success-card {
+            border: 0;
+            border-radius: .5rem;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, .22);
+            overflow: hidden;
+        }
+
+        .payment-success-accent {
+            background: linear-gradient(90deg, #0f766e, #22c55e, #2563eb);
+            height: 7px;
+        }
+
+        .payment-success-icon {
+            align-items: center;
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+            border-radius: .5rem;
+            color: #047857;
+            display: inline-flex;
+            height: 76px;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            width: 76px;
+        }
+
+        .payment-success-kicker {
+            color: #047857;
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+            margin-bottom: .35rem;
+            text-transform: uppercase;
+        }
+
+        .payment-success-summary {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: .5rem;
+            display: grid;
+            gap: .8rem;
+            margin: 1.25rem 0;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .payment-success-summary-row {
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .payment-success-summary-row span {
+            color: var(--gray-600);
+            font-size: .82rem;
+        }
+
+        .payment-success-summary-row strong {
+            color: var(--gray-800);
+            font-size: .95rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .page-header-modern {
@@ -588,19 +650,44 @@
     @endif
 
     <!-- PAYMENT SUCCESS MODAL (Modern) -->
-    <div class="modal fade" id="paymentSuccessModal" tabindex="-1" aria-labelledby="paymentSuccessModalLabel"
+    <div class="modal fade payment-success-modal" id="paymentSuccessModal" tabindex="-1" aria-labelledby="paymentSuccessModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-body text-center p-5">
-                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
-                        style="width:80px;height:80px;">
+            <div class="modal-content payment-success-card">
+                <div class="payment-success-accent"></div>
+                <div class="modal-body text-center p-4 p-sm-5">
+                    <div class="payment-success-icon">
                         <i class="bi bi-check-circle-fill fs-1"></i>
                     </div>
-                    <h4 class="mb-2 fw-bold" id="paymentSuccessModalLabel">Payment Successful!</h4>
-                    <p class="text-muted mb-4" id="paymentSuccessMessage">Payment successful.</p>
-                    <button type="button" class="btn btn-success rounded-pill px-5 py-2"
-                        data-bs-dismiss="modal">Done</button>
+                    <div class="payment-success-kicker">Payment complete</div>
+                    <h4 class="mb-2 fw-bold" id="paymentSuccessModalLabel">Payment Successful</h4>
+                    <p class="text-muted mb-0" id="paymentSuccessMessage">Payment successful.</p>
+
+                    <div class="payment-success-summary">
+                        <div class="payment-success-summary-row">
+                            <span>Order</span>
+                            <strong>{{ $order->display_order_label }}</strong>
+                        </div>
+                        <div class="payment-success-summary-row">
+                            <span>Total paid</span>
+                            <strong>${{ number_format($order->total_amount, 2) }}</strong>
+                        </div>
+                        <div class="payment-success-summary-row">
+                            <span>Status</span>
+                            <strong>Ready for receipt</strong>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-sm-flex justify-content-center">
+                        <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">
+                            <i class="bi bi-check2 me-1"></i> Done
+                        </button>
+                        @if($order->status === 'paid')
+                            <button type="button" class="btn btn-outline-secondary px-4" onclick="window.print()">
+                                <i class="bi bi-printer me-1"></i> Print
+                            </button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
