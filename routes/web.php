@@ -43,6 +43,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile.show');
     Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/password', [AuthController::class, 'updatePassword'])->name('profile.password.update');
     Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
     Route::post('/pos/add', [POSController::class, 'addToCart'])->name('pos.add');
     Route::delete('/pos/cart/item/{index}', [POSController::class, 'removeCartItem'])->name('pos.cart.item.destroy');

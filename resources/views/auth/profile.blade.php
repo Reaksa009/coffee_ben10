@@ -199,4 +199,46 @@
             </div>
         </div>
     </form>
+
+    <form method="POST" action="{{ route('profile.password.update') }}">
+        @csrf
+
+        <div class="profile-card">
+            <div class="form-section">
+                <h3>Account Security</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="current_password">Current Password *</label>
+                        <input type="password" id="current_password" name="current_password"
+                            class="@error('current_password') is-invalid @enderror" autocomplete="current-password" required>
+                        @error('current_password')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">New Password *</label>
+                        <input type="password" id="password" name="password"
+                            class="@error('password') is-invalid @enderror" autocomplete="new-password" required>
+                        @error('password')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirmation">Confirm New Password *</label>
+                        <input type="password" id="password_confirmation" name="password_confirmation"
+                            autocomplete="new-password" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-shield-lock me-1"></i> Change Password
+                </button>
+            </div>
+        </div>
+    </form>
 @endsection

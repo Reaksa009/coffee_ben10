@@ -123,4 +123,62 @@ class PermissionTest extends TestCase
 
         $this->assertTrue(Hash::check('new-secure-password', $staff->fresh()->password));
     }
+
+    public function test_cashier_can_change_own_password_from_profile(): void
+    {
+        $cashier = User::factory()->create([
+            'role' => User::ROLE_CASHIER,
+            'password' => Hash::make('old-secure-password'),
+        ]);
+
+        $this->actingAs($cashier)
+            ->post(route('profile.password.update'), [
+                'current_password' => 'old-secure-password',
+                'password' => 'new-secure-password',
+                'password_confirmation' => 'new-secure-password',
+            ])
+            ->assertRedirect(route('profile.show'))
+            ->assertSessionHas('success');
+
+        $this->assertTrue(Hash::check('new-secure-password', $cashier->fresh()->password));
+    }
+
+    public function test_manager_can_change_own_password_from_profile(): void
+    {
+        $manager = User::factory()->create([
+            'role' => User::ROLE_MANAGER,
+            'password' => Hash::make('old-secure-password'),
+        ]);
+
+        $this->actingAs($manager)
+            ->post(route('profile.password.update'), [
+                'current_password' => 'old-secure-password',
+                'password' => 'new-manager-password',
+                'password_confirmation' => 'new-manager-password',
+            ])
+            ->assertRedirect(route('profile.show'))
+            ->assertSessionHas('success');
+
+        $this->assertTrue(Hash::check('new-manager-password', $manager->fresh()->password));
+    }
+
+    public function test_user_cannot_change_own_password_without_current_password(): void
+    {
+        $manager = User::factory()->create([
+            'role' => User::ROLE_MANAGER,
+            'password' => Hash::make('old-secure-password'),
+        ]);
+
+        $this->actingAs($manager)
+            ->from(route('profile.show'))
+            ->post(route('profile.password.update'), [
+                'current_password' => 'wrong-password',
+                'password' => 'new-manager-password',
+                'password_confirmation' => 'new-manager-password',
+            ])
+            ->assertRedirect(route('profile.show'))
+            ->assertSessionHasErrors('current_password');
+
+        $this->assertTrue(Hash::check('old-secure-password', $manager->fresh()->password));
+    }
 }
