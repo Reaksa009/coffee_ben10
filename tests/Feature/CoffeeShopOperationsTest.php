@@ -6,6 +6,7 @@ use App\Models\InventoryItem;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductIngredient;
+use App\Models\Promo;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,6 +20,11 @@ class CoffeeShopOperationsTest extends TestCase
     public function test_manager_can_render_coffee_shop_operations_pages(): void
     {
         $manager = User::factory()->create(['role' => User::ROLE_MANAGER]);
+        $promo = Promo::create([
+            'code' => 'SAVE10',
+            'discount_type' => 'percentage',
+            'discount_value' => 10,
+        ]);
 
         foreach ([
             route('inventory.index'),
@@ -26,6 +32,9 @@ class CoffeeShopOperationsTest extends TestCase
             route('purchases.index'),
             route('purchases.create'),
             route('products.create'),
+            route('promos.index'),
+            route('promos.create'),
+            route('promos.edit', $promo),
             route('reports.daily-close'),
             route('activity-logs.index'),
             route('backup.index'),
