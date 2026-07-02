@@ -26,11 +26,11 @@
                     <h2 class="app-card-title">Low-stock Alerts</h2>
                     <p class="text-muted small mb-0">Restock these items before the counter runs short.</p>
                 </div>
-                <span class="badge text-bg-warning">{{ $lowStockItems->count() }} alert{{ $lowStockItems->count() === 1 ? '' : 's' }}</span>
+                <span class="badge bg-amber-subtle text-amber border border-amber-subtle">{{ $lowStockItems->count() }} alert{{ $lowStockItems->count() === 1 ? '' : 's' }}</span>
             </div>
             <div class="p-3 d-flex flex-wrap gap-2">
                 @foreach($lowStockItems as $item)
-                    <span class="badge text-bg-warning border">
+                    <span class="badge bg-amber-subtle text-amber border border-amber-subtle">
                         {{ $item->name }}: {{ number_format($item->quantity_on_hand, 3) }} {{ $item->unit }}
                     </span>
                 @endforeach
@@ -119,7 +119,7 @@
                                                 <input form="inventory-update-{{ $item->id }}" type="text" name="unit" class="form-control" value="{{ $item->unit }}" required>
                                             </div>
                                             @if($item->is_low_stock)
-                                                <span class="badge text-bg-warning mt-1">Low stock</span>
+                                                <span class="badge bg-amber-subtle text-amber border border-amber-subtle mt-1">Low stock</span>
                                             @endif
                                         </td>
                                         <td style="min-width: 110px;">

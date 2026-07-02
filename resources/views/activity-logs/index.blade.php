@@ -32,7 +32,20 @@
                             <tr>
                                 <td class="small text-muted">{{ $log->created_at?->format('M d, Y H:i') }}</td>
                                 <td class="fw-semibold">{{ $log->user?->name ?? 'System' }}</td>
-                                <td><span class="badge text-bg-light border">{{ $log->action }}</span></td>
+                                <td>
+                                    @php
+                                        $actionLower = strtolower($log->action);
+                                        $badgeClass = 'bg-slate-subtle text-slate border border-slate-subtle';
+                                        if (str_contains($actionLower, 'create') || str_contains($actionLower, 'store') || str_contains($actionLower, 'add') || str_contains($actionLower, 'login') || str_contains($actionLower, 'checkout') || str_contains($actionLower, 'place')) {
+                                            $badgeClass = 'bg-emerald-subtle text-emerald border border-emerald-subtle';
+                                        } elseif (str_contains($actionLower, 'update') || str_contains($actionLower, 'edit') || str_contains($actionLower, 'change')) {
+                                            $badgeClass = 'bg-blue-subtle text-blue border border-blue-subtle';
+                                        } elseif (str_contains($actionLower, 'delete') || str_contains($actionLower, 'destroy') || str_contains($actionLower, 'remove') || str_contains($actionLower, 'cancel') || str_contains($actionLower, 'logout')) {
+                                            $badgeClass = 'bg-rose-subtle text-rose border border-rose-subtle';
+                                        }
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }}">{{ strtoupper($log->action) }}</span>
+                                </td>
                                 <td>{{ $log->description }}</td>
                                 <td class="small text-muted">
                                     @if($log->properties)

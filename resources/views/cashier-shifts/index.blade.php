@@ -20,7 +20,7 @@
                             <h2 class="app-card-title">Current Shift</h2>
                             <div class="text-muted small">Opened {{ $openShift->opened_at->format('M d, Y H:i') }}</div>
                         </div>
-                        <span class="badge text-bg-success">Open</span>
+                        <span class="badge bg-emerald-subtle text-emerald border border-emerald-subtle">Open</span>
                     </div>
 
                     <div class="row g-3 mb-4">
@@ -146,9 +146,15 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="badge text-bg-{{ $shift->isOpen() ? 'success' : 'secondary' }}">
-                                            {{ ucfirst($shift->status) }}
-                                        </span>
+                                        @if($shift->isOpen())
+                                            <span class="badge bg-emerald-subtle text-emerald border border-emerald-subtle">
+                                                Open
+                                            </span>
+                                        @else
+                                            <span class="badge bg-slate-subtle text-slate border border-slate-subtle">
+                                                Closed
+                                            </span>
+                                        @endif
                                     </td>
                                     <td>${{ number_format($shift->isOpen() ? $shift->expectedCash() : $shift->expected_cash_amount, 2) }}</td>
                                     <td>{{ $shift->closing_cash === null ? '-' : '$' . number_format($shift->closing_cash, 2) }}</td>

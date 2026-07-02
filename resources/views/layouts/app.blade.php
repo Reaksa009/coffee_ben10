@@ -7,6 +7,9 @@
     <title>Coffee Ben10</title>
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f766e'/%3E%3Ctext x='32' y='39' font-family='Arial,sans-serif' font-size='22' font-weight='700' text-anchor='middle' fill='white'%3ECB%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -24,6 +27,7 @@
         }
 
         body {
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
             background: var(--soft);
             color: var(--ink);
             font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -34,9 +38,9 @@
         }
 
         .app-topbar {
-            background: rgba(255, 255, 255, .96) !important;
-            backdrop-filter: blur(14px);
-            box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+            background: rgba(255, 255, 255, 0.82) !important;
+            backdrop-filter: blur(18px);
+            box-shadow: 0 8px 30px rgba(15, 23, 42, .04);
             min-height: 64px;
         }
 
@@ -121,31 +125,42 @@
 
         .sidebar {
             min-height: 100vh;
-            border-right: 1px solid var(--line);
-            background: #fff !important;
-            box-shadow: 8px 0 24px rgba(15, 23, 42, .03);
+            border-right: none !important;
+            background: linear-gradient(180deg, #0e5e58, #053330) !important;
+            box-shadow: 8px 0 24px rgba(15, 23, 42, .08);
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        .sidebar .brand-lockup {
+            color: #fff !important;
+        }
+        
+        .sidebar .brand-small {
+            color: rgba(255, 255, 255, 0.5) !important;
         }
 
         .sidebar .nav-link {
             align-items: center;
-            color: #374151;
+            color: rgba(255, 255, 255, 0.8) !important;
             display: flex;
             gap: .65rem;
             border-radius: .5rem;
             margin-bottom: .2rem;
             padding: .68rem .75rem;
-            font-weight: 650;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
 
         .sidebar .nav-link.active {
-            background: rgba(15, 118, 110, .1);
-            color: var(--brand);
-            font-weight: 600;
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #fff !important;
+            font-weight: 700;
+            box-shadow: inset 3px 0 0 #34d399;
         }
 
         .sidebar .nav-link:hover {
-            background: #f1f5f9;
-            color: var(--ink);
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #fff !important;
         }
 
         .sidebar .nav-link i {
@@ -173,53 +188,57 @@
             display: grid;
             gap: .5rem;
             margin: .25rem 0 .65rem;
-            padding-left: 1rem;
+            padding-left: 0.5rem;
         }
 
         .sidebar-submenu .nav-link {
-            background: #fff7d6;
-            border: 1px solid #f1df9b;
-            color: #3f2d12;
+            background: transparent;
+            border-left: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0;
+            color: rgba(255, 255, 255, 0.65) !important;
             margin-bottom: 0;
-            padding: .62rem .7rem;
+            padding: .5rem .75rem .5rem 1.25rem;
+            font-size: .88rem;
+            font-weight: 600;
+            transition: all .2s ease;
         }
 
         .sidebar-submenu .nav-link:hover {
-            background: #ffef9a;
-            border-color: #e3c76a;
-            color: #2d1d07;
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #fff !important;
+            border-left-color: #34d399 !important;
         }
 
         .sidebar-submenu .nav-link.active {
-            background: #fff08a;
-            border-color: #e0bd43;
-            color: #201402;
-            font-weight: 800;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-left-color: #34d399 !important;
+            color: #34d399 !important;
+            font-weight: 700;
         }
 
         .sidebar-submenu .nav-link.disabled {
-            background: #f8fafc;
-            border-color: var(--line);
-            color: #94a3b8;
+            background: transparent;
+            border-left-color: transparent;
+            color: rgba(255, 255, 255, 0.3);
             cursor: not-allowed;
-            opacity: 1;
+            opacity: 0.5;
         }
 
         .sidebar-profile {
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
             border-radius: .5rem;
-            background: var(--surface-subtle);
+            background: rgba(255, 255, 255, 0.05) !important;
             padding: .8rem;
             margin-bottom: 1rem;
+            color: #fff !important;
         }
 
-        .nav-section-label {
-            color: var(--muted);
-            font-size: .72rem;
-            font-weight: 800;
-            letter-spacing: .04em;
-            margin: 1rem 0 .35rem;
-            text-transform: uppercase;
+        .sidebar-profile .text-muted {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .sidebar .nav-section-label {
+            color: rgba(255, 255, 255, 0.4) !important;
         }
 
         .nav-feature-link {
@@ -543,6 +562,154 @@
             background-color: #f9fafb;
             border-color: #e5e7eb;
             cursor: not-allowed;
+        }
+
+        /* Premium aesthetics override settings */
+        .form-control, .form-select {
+            border-radius: 0.5rem !important;
+            border-color: #cbd5e1 !important;
+            padding: 0.55rem 0.75rem !important;
+            font-size: 0.88rem !important;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--brand) !important;
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15) !important;
+        }
+
+        .btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border-radius: 0.5rem !important;
+            font-weight: 600 !important;
+        }
+        
+        .btn-primary:active, .btn-primary:focus {
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.25) !important;
+        }
+
+        .app-card {
+            border-radius: 0.75rem !important;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.02) !important;
+            border: 1px solid var(--line) !important;
+            overflow: hidden;
+            transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.06) !important;
+        }
+
+        .app-card-header {
+            background-color: var(--surface-subtle) !important;
+            border-bottom: 1px solid var(--line) !important;
+        }
+
+        .app-table th {
+            color: #475569 !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+            background: #f8fafc !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding: 0.75rem 1rem !important;
+        }
+
+        .app-table td {
+            padding: 0.95rem 1rem !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            vertical-align: middle !important;
+        }
+
+        .app-table tr:hover td {
+            background-color: rgba(15, 118, 110, 0.02) !important;
+        }
+
+        .badge {
+            border-radius: 0.5rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.02em;
+        }
+
+        .empty-state {
+            padding: 3rem 1.5rem !important;
+            border-radius: 0.75rem;
+            background: #fff;
+            border: 1px dashed var(--line);
+        }
+
+        .bg-teal-subtle {
+            background-color: rgba(20, 184, 166, 0.12) !important;
+        }
+
+        /* Inline table inputs styling */
+        .app-table .form-control, .app-table .form-select {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.875rem !important;
+            transition: all 0.15s ease !important;
+        }
+        .app-table .form-control:hover, .app-table .form-select:hover {
+            border-color: var(--line) !important;
+            background-color: #fff !important;
+        }
+        .app-table .form-control:focus, .app-table .form-select:focus {
+            border-color: var(--brand) !important;
+            background-color: #fff !important;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12) !important;
+        }
+
+        .bg-amber-subtle {
+            background-color: #fef3c7 !important;
+        }
+        .text-amber {
+            color: #d97706 !important;
+        }
+        .border-amber-subtle {
+            border-color: #fde68a !important;
+        }
+
+        .bg-emerald-subtle {
+            background-color: #d1fae5 !important;
+        }
+        .text-emerald {
+            color: #047857 !important;
+        }
+        .border-emerald-subtle {
+            border-color: #a7f3d0 !important;
+        }
+
+        .bg-slate-subtle {
+            background-color: #f1f5f9 !important;
+        }
+        .text-slate {
+            color: #475569 !important;
+        }
+        .border-slate-subtle {
+            border-color: #cbd5e1 !important;
+        }
+
+        .bg-blue-subtle {
+            background-color: #dbeafe !important;
+        }
+        .text-blue {
+            color: #1d4ed8 !important;
+        }
+        .border-blue-subtle {
+            border-color: #bfdbfe !important;
+        }
+
+        .bg-rose-subtle {
+            background-color: #ffe4e6 !important;
+        }
+        .text-rose {
+            color: #be123c !important;
+        }
+        .border-rose-subtle {
+            border-color: #fecdd3 !important;
         }
     </style>
     {{-- @viteWhenAvailable --}}

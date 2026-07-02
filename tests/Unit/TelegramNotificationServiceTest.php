@@ -61,9 +61,10 @@ class TelegramNotificationServiceTest extends TestCase
         Http::assertSent(function ($request) use ($order) {
             return $request->url() === 'https://api.telegram.org/bottelegram-token/sendMessage'
                 && $request['chat_id'] === '123456'
-                && str_contains($request['text'], 'Payment successful')
-                && str_contains($request['text'], 'Order: #'.$order->id)
-                && str_contains($request['text'], 'Transaction: TX-123');
+                && str_contains($request['text'], 'ការបង់ប្រាក់បានជោគជ័យ')
+                && str_contains($request['text'], 'ការបញ្ជាទិញ')
+                && str_contains($request['text'], 'លេខប្រតិបត្តិការ')
+                && str_contains($request['text'], 'TX-123');
         });
     }
 }

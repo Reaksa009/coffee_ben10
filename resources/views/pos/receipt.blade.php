@@ -7,19 +7,21 @@
                                ============================================ */
 
         :root {
-            --primary-red: #262fdc;
-            --primary-dark: #3389b8;
-            --primary-soft: #fef2f2;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-600: #6b7280;
-            --gray-800: #1f2937;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-            --radius-lg: 1rem;
-            --radius-xl: 1.5rem;
+            --primary-red: #0f766e;
+            --primary-dark: #115e59;
+            --primary-soft: #f0fdfa;
+            --khqr-red: #d32f2f;
+            --khqr-blue: #0b2f61;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-600: #475569;
+            --gray-800: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+            --shadow-lg: 0 10px 25px -3px rgba(15, 23, 42, 0.08), 0 4px 12px -4px rgba(15, 23, 42, 0.08);
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
         }
 
         body {
@@ -151,44 +153,81 @@
 
         /* KHQR Button */
         .btn-khqr {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary-red));
-            color: white;
-            border: none;
-            border-radius: 3rem;
-            padding: 0.875rem 1.5rem;
-            font-weight: 700;
-            width: 100%;
-            transition: all 0.2s;
+            background: linear-gradient(135deg, var(--khqr-red), #b71c1c) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 3rem !important;
+            padding: 0.875rem 1.5rem !important;
+            font-weight: 700 !important;
+            width: 100% !important;
+            transition: all 0.2s !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.25) !important;
         }
 
         .btn-khqr:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            color: white;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(211, 47, 47, 0.4) !important;
+            color: white !important;
         }
 
-        /* KHQR Ticket (same structure, modernized) */
+        /* KHQR Logo Badge */
+        .khqr-logo-badge {
+            display: inline-flex;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 0.95rem;
+            border-radius: 0.35rem;
+            overflow: hidden;
+            border: 1.5px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .khqr-logo-badge .badge-kh {
+            background: #fff;
+            color: var(--khqr-red);
+            padding: 0.08rem 0.35rem;
+        }
+        .khqr-logo-badge .badge-qr {
+            background: var(--khqr-red);
+            color: #fff;
+            padding: 0.08rem 0.35rem;
+        }
+
+        /* KHQR Ticket (Modernized) */
         .khqr-ticket-modern {
-            max-width: 360px;
+            max-width: 350px;
             margin: 0 auto;
             background: white;
-            border-radius: 1.5rem;
+            border-radius: 1.25rem;
             overflow: hidden;
+            border: 1px solid var(--gray-200);
             box-shadow: var(--shadow-lg);
+            position: relative;
         }
 
         .khqr-ticket-header {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary-red));
-            padding: 1rem 1.25rem;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: linear-gradient(135deg, var(--khqr-red), #b71c1c) !important;
+            padding: 1rem 1.25rem !important;
+            color: white !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            border-bottom: 3px solid #ffcc00; /* Cambodia golden line representation */
         }
 
         .khqr-ticket-body-modern {
-            padding: 1.5rem;
+            padding: 1.25rem;
             text-align: center;
+            background: radial-gradient(circle at top, #fafafa 0%, #ffffff 70%);
+        }
+
+        /* Scanner Frame Wrapper */
+        .khqr-frame-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 0.5rem auto;
         }
 
         .khqr-frame-modern {
@@ -196,8 +235,59 @@
             padding: 0.75rem;
             background: white;
             border-radius: 1rem;
+            border: 3.5px solid var(--khqr-red);
             box-shadow: var(--shadow-md);
-            margin: 0.5rem 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Scanner Line Animation */
+        .khqr-scanner-line {
+            position: absolute;
+            top: 0;
+            left: 6px;
+            width: calc(100% - 12px);
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            box-shadow: 0 0 10px #22c55e, 0 0 4px #22c55e;
+            border-radius: 99px;
+            z-index: 3;
+            pointer-events: none;
+            animation: khqr-scan 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes khqr-scan {
+            0% { top: 6px; }
+            50% { top: calc(100% - 10px); }
+            100% { top: 6px; }
+        }
+
+        /* Transaction Detail Card inside Ticket */
+        .khqr-details-card {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.75rem;
+            padding: 0.85rem;
+            margin-top: 1rem;
+            text-align: left;
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        .khqr-details-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+        
+        .khqr-details-row .label {
+            color: var(--gray-600);
+        }
+
+        .khqr-details-row .value {
+            font-weight: 700;
+            color: var(--gray-800);
         }
 
         /* Empty State */
@@ -945,16 +1035,31 @@
                             code.innerHTML = [
                                 '<div class="khqr-ticket-modern">',
                                 '<div class="khqr-ticket-header">',
-                                '<div class="fw-bold"><i class="bi bi-qr-code me-1"></i> KHQR</div>',
+                                '<div class="khqr-logo-badge"><span class="badge-kh">KH</span><span class="badge-qr">QR</span></div>',
                                 '<div class="fw-bold">' + escapeHtml(khqrAmountLabel) + '</div>',
                                 '</div>',
                                 '<div class="khqr-ticket-body-modern">',
-                                '<div class="text-uppercase small text-muted fw-bold">' + escapeHtml(khqrMerchantName) + '</div>',
-                                '<div class="fw-bold mb-3">' + escapeHtml(khqrOrderLabel) + '</div>',
+                                '<div class="khqr-frame-wrapper">',
+                                '<div class="khqr-scanner-line"></div>',
                                 '<div class="khqr-frame-modern">',
                                 '<img src="' + qrSrc + '" alt="KHQR code" style="width:200px;height:auto;">',
                                 '</div>',
-                                '<div class="text-muted small mt-3">Scan with Bakong or any KHQR supported bank app</div>',
+                                '</div>',
+                                '<div class="khqr-details-card">',
+                                '<div class="khqr-details-row">',
+                                '<span class="label">Merchant</span>',
+                                '<span class="value">' + escapeHtml(khqrMerchantName) + '</span>',
+                                '</div>',
+                                '<div class="khqr-details-row">',
+                                '<span class="label">Order Ref</span>',
+                                '<span class="value">' + escapeHtml(khqrOrderLabel) + '</span>',
+                                '</div>',
+                                '<div class="khqr-details-row">',
+                                '<span class="label">Total Amount</span>',
+                                '<span class="value" style="color: var(--khqr-red);">' + escapeHtml(khqrAmountLabel) + '</span>',
+                                '</div>',
+                                '</div>',
+                                '<div class="text-muted small mt-3"><i class="bi bi-shield-lock me-1"></i> Scan with Bakong or any KHQR supported bank app</div>',
                                 '</div>',
                                 '</div>'
                             ].join('');

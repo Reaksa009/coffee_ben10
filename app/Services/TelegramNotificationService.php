@@ -24,6 +24,7 @@ class TelegramNotificationService
                 ->post("https://api.telegram.org/bot{$token}/sendMessage", [
                     'chat_id' => $chatId,
                     'text' => $this->paymentSuccessMessage($payment),
+                    'parse_mode' => 'HTML',
                     'disable_web_page_preview' => true,
                 ]);
 
@@ -51,30 +52,32 @@ class TelegramNotificationService
 
         $order = $payment->order;
         $lines = [
-            'Payment successful',
-            'Order: '.($order?->display_order_label ?? '#'.$payment->order_id),
-            'Amount: $'.number_format((float) $payment->amount, 2),
-            'Method: '.strtoupper($payment->payment_method ?? $payment->provider ?? 'payment'),
-            'Transaction: '.($payment->transaction_id ?: 'Not recorded'),
-            'Paid at: '.now()->format('Y-m-d H:i:s'),
+            '<b>🎉 ការបង់ប្រាក់បានជោគជ័យ!</b>',
+            '=============================',
+            '<b>📦 ការបញ្ជាទិញ:</b> <code>'.($order?->display_order_label ?? '#'.$payment->order_id).'</code>',
+            '<b>💵 ចំនួនទឹកប្រាក់:</b> <code>$'.number_format((float) $payment->amount, 2).'</code>',
+            '<b>💳 វិធីសាស្ត្រទូទាត់:</b> <code>'.strtoupper($payment->payment_method ?? $payment->provider ?? 'payment').'</code>',
+            '<b>🧾 លេខប្រតិបត្តិការ:</b> <code>'.($payment->transaction_id ?: 'មិនមានដានឡើយ').'</code>',
+            '<b>⏰ កាលបរិច្ឆេទ:</b> <code>'.now()->format('Y-m-d H:i:s').'</code>',
+            '=============================',
         ];
 
         if ($order) {
-            $lines[] = 'Receipt: '.route('pos.receipt', ['id' => $order->id]);
+            $lines[] = '<b>🔗 វិក្កយបត្រ:</b> '.route('pos.receipt', ['id' => $order->id]);
 
             if ($order->customer_name || $order->customer_phone) {
-                $customer = trim(($order->customer_name ?: 'Walk-in Customer').' '.($order->customer_phone ?: ''));
-                $lines[] = 'Customer: '.$customer;
+                $customer = trim(($order->customer_name ?: 'អតិថិជនមកផ្ទាល់').' '.($order->customer_phone ?: ''));
+                $lines[] = '<b>👤 អតិថិជន:</b> '.$customer;
             }
 
             if ($order->items->isNotEmpty()) {
-                $lines[] = 'Items:';
+                $lines[] = '<b>🛒 ទំនិញបញ្ជាទិញ:</b>';
 
                 foreach ($order->items as $item) {
-                    $productName = $item->product?->name ?? 'Product #'.$item->product_id;
-                    $lines[] = '- '.$productName
-                        .' x'.$item->quantity
-                        .' - $'.number_format((float) $item->line_total, 2);
+                    $productName = $item->product?->name ?? 'ផលិតផល #'.$item->product_id;
+                    $lines[] = '• '.$productName
+                        .' <b>x'.$item->quantity.'</b>'
+                        .' - <code>$'.number_format((float) $item->line_total, 2).'</code>';
                 }
             }
         }

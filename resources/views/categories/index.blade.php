@@ -34,7 +34,7 @@
                                 <strong>{{ $category->name }}</strong>
                             </td>
                             <td>
-                                <span class="badge text-bg-light border">
+                                <span class="badge bg-teal-subtle text-primary border border-teal-subtle px-2 py-1">
                                     {{ $category->products_count }} product{{ $category->products_count === 1 ? '' : 's' }}
                                 </span>
                             </td>
