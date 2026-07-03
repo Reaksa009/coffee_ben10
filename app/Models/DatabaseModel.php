@@ -20,6 +20,14 @@ if ($conn === 'mongodb') {
 if ($isMongo && class_exists(\MongoDB\Laravel\Eloquent\Model::class)) {
     abstract class DatabaseModel extends \MongoDB\Laravel\Eloquent\Model
     {
+        public function hasGetMutator($key)
+        {
+            if ($key === '_id') {
+                return false;
+            }
+            return parent::hasGetMutator($key);
+        }
+
         public function getIdAttribute($value = null)
         {
             return (string) $this->getKey();

@@ -20,6 +20,14 @@ if ($conn === 'mongodb') {
 if ($isMongo && class_exists(\MongoDB\Laravel\Auth\User::class)) {
     abstract class DatabaseAuthenticatable extends \MongoDB\Laravel\Auth\User
     {
+        public function hasGetMutator($key)
+        {
+            if ($key === '_id') {
+                return false;
+            }
+            return parent::hasGetMutator($key);
+        }
+
         public function getIdAttribute($value = null)
         {
             return (string) $this->getKey();
