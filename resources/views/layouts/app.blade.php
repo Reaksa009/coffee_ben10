@@ -131,6 +131,23 @@
             color: rgba(255, 255, 255, 0.75) !important;
         }
 
+        @media (min-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 1000;
+                width: 16.666667%;
+                height: 100vh;
+                overflow-y: auto;
+            }
+            .app-topbar {
+                margin-left: 16.666667%;
+                width: calc(100% - 16.666667%);
+            }
+        }
+
         .sidebar .brand-lockup {
             color: #fff !important;
         }

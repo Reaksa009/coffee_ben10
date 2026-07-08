@@ -48,7 +48,6 @@
         "VIEW_COMPILED_PATH": "/tmp/views",
         "LOG_CHANNEL": "stderr",
         "DB_CONNECTION": "mongodb",
-        "DB_DATABASE": "coffee_ben10",
         "KHQR_PROVIDER": "khqr_link",
         "KHQR_API_BASE_URL": "https://api.khqr.link",
         "SESSION_DRIVER": "cookie",
