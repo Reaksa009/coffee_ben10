@@ -134,8 +134,14 @@ Route::get('/debug-products', function () {
         abort(403);
     }
     
+    $q1 = App\Models\Product::all();
+    $q2 = App\Models\Product::orderBy('name')->get();
+    $q3 = App\Models\Product::with('category')->get();
+    
     return [
-        'categories' => App\Models\Category::all()->toArray(),
-        'products' => App\Models\Product::all()->toArray(),
+        'all_count' => $q1->count(),
+        'orderBy_count' => $q2->count(),
+        'with_count' => $q3->count(),
+        'selectedCategory' => request('category'),
     ];
 });
