@@ -134,14 +134,20 @@ Route::get('/debug-products', function () {
         abort(403);
     }
     
-    $q1 = App\Models\Product::all();
-    $q2 = App\Models\Product::orderBy('name')->get();
-    $q3 = App\Models\Product::with('category')->get();
+    // Clear any previous test product
+    App\Models\Product::where('name', 'Persisted Product')->delete();
+    
+    $product = App\Models\Product::create([
+        'name' => 'Persisted Product',
+        'price' => 1.5,
+        'stock' => 100,
+    ]);
+    
+    $retrieved = App\Models\Product::find($product->id);
     
     return [
-        'all_count' => $q1->count(),
-        'orderBy_count' => $q2->count(),
-        'with_count' => $q3->count(),
-        'selectedCategory' => request('category'),
+        'created_attributes' => $product->getAttributes(),
+        'retrieved_attributes' => $retrieved ? $retrieved->getAttributes() : null,
+        'retrieved_stock_field' => $retrieved ? $retrieved->stock : null,
     ];
 });
