@@ -134,17 +134,24 @@ Route::get('/debug-products', function () {
         abort(403);
     }
     
-    $testProduct = App\Models\Product::create([
-        'name' => 'Test Stock Product',
-        'price' => 1.5,
-        'stock' => 100,
-    ]);
+    $selectedCategory = request('category');
+    $selectedCategoryIds = App\Models\Category::idsForName($selectedCategory);
     
-    $retrieved = App\Models\Product::find($testProduct->id);
+    $productsQuery = App\Models\Product::query()
+        ->with('category')
+        ->when($selectedCategory, function ($query) use ($selectedCategoryIds) {
+            return $selectedCategoryIds->isEmpty()
+                ? $query->whereKey('__missing_category__')
+                : $query->whereIn('category_id', $selectedCategoryIds->all());
+        })
+        ->orderBy('name');
+        
+    $products = $productsQuery->get();
     
     return [
-        'created_attributes' => $testProduct ? $testProduct->getAttributes() : null,
-        'retrieved_attributes' => $retrieved ? $retrieved->getAttributes() : null,
-        'retrieved_stock_cast' => $retrieved ? $retrieved->stock : null,
+        'selected_category' => $selectedCategory,
+        'selected_category_ids' => $selectedCategoryIds->all(),
+        'products_count' => $products->count(),
+        'products' => $products->toArray(),
     ];
 });
