@@ -133,5 +133,18 @@ Route::get('/debug-products', function () {
     if (request('code') !== 'debug123') {
         abort(403);
     }
-    return App\Models\Product::all()->toArray();
+    
+    $testProduct = App\Models\Product::create([
+        'name' => 'Test Stock Product',
+        'price' => 1.5,
+        'stock' => 100,
+    ]);
+    
+    $retrieved = App\Models\Product::find($testProduct->id);
+    
+    return [
+        'created_attributes' => $testProduct ? $testProduct->getAttributes() : null,
+        'retrieved_attributes' => $retrieved ? $retrieved->getAttributes() : null,
+        'retrieved_stock_cast' => $retrieved ? $retrieved->stock : null,
+    ];
 });
