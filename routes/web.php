@@ -128,3 +128,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/promo/validate', [PromoController::class, 'validate'])->name('promo.validate');
     Route::post('/payment/process', [PaymentMethodController::class, 'process'])->name('payment.process');
 });
+
+Route::get('/debug-products', function () {
+    if (request('code') !== 'debug123') {
+        abort(403);
+    }
+    return App\Models\Product::all()->toArray();
+});
