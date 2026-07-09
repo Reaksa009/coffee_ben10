@@ -134,24 +134,8 @@ Route::get('/debug-products', function () {
         abort(403);
     }
     
-    $selectedCategory = request('category');
-    $selectedCategoryIds = App\Models\Category::idsForName($selectedCategory);
-    
-    $productsQuery = App\Models\Product::query()
-        ->with('category')
-        ->when($selectedCategory, function ($query) use ($selectedCategoryIds) {
-            return $selectedCategoryIds->isEmpty()
-                ? $query->whereKey('__missing_category__')
-                : $query->whereIn('category_id', $selectedCategoryIds->all());
-        })
-        ->orderBy('name');
-        
-    $products = $productsQuery->get();
-    
     return [
-        'selected_category' => $selectedCategory,
-        'selected_category_ids' => $selectedCategoryIds->all(),
-        'products_count' => $products->count(),
-        'products' => $products->toArray(),
+        'categories' => App\Models\Category::all()->toArray(),
+        'products' => App\Models\Product::all()->toArray(),
     ];
 });
