@@ -35,7 +35,7 @@ class KHQRService
         $this->merchantCity = (string) (config('khqr.merchant_city') ?? 'PHNOM PENH');
         $this->currency = $this->currencyCode((string) (config('khqr.currency') ?? 'USD'));
         $this->apiBaseUrl = rtrim((string) config('khqr.api_base_url', 'https://api.khqr.link'), '/');
-        $this->apiKey = config('khqr.api_key');
+        $this->apiKey = config('khqr.api_key') ?: config('khqr.api_token');
         $this->merchantId = config('khqr.merchant_id');
         $this->acquiringBank = config('khqr.acquiring_bank');
         $this->dynamicQrExpiresIn = (int) config('khqr.dynamic_qr_expires_in', 180);
@@ -55,7 +55,10 @@ class KHQRService
         $request = Http::acceptJson()->timeout(15);
 
         if ($this->apiKey) {
-            $request = $request->withHeaders(['X-API-Key' => $this->apiKey]);
+            $request = $request->withHeaders([
+                'X-API-Key' => $this->apiKey,
+                'Authorization' => 'Bearer ' . $this->apiKey,
+            ]);
         }
 
         $response = $request->get($this->apiBaseUrl . '/v1/khqr/check', [
@@ -147,7 +150,10 @@ class KHQRService
         $request = Http::acceptJson()->timeout(15);
 
         if ($this->apiKey) {
-            $request = $request->withHeaders(['X-API-Key' => $this->apiKey]);
+            $request = $request->withHeaders([
+                'X-API-Key' => $this->apiKey,
+                'Authorization' => 'Bearer ' . $this->apiKey,
+            ]);
         }
 
         $response = $request->get($this->apiBaseUrl . '/v1/khqr/create', [

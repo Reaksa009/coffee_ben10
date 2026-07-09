@@ -121,11 +121,6 @@ class Product extends DatabaseModel
         return asset('storage/' . $this->image);
     }
 
-    public function setPriceAttribute($value): void
-    {
-        $this->attributes['price'] = (float) $value;
-    }
-
     public function setCategoryAttribute($value): void
     {
         $this->attributes['category_id'] = Category::findOrCreateByName($value)?->id;
@@ -140,34 +135,5 @@ class Product extends DatabaseModel
         }
 
         $this->attributes['category_id'] = $value;
-    }
-
-    public function setSmallPriceAttribute($value): void
-    {
-        $this->attributes['small_price'] = $this->nullableFloat($value);
-    }
-
-    public function setMediumPriceAttribute($value): void
-    {
-        $this->attributes['medium_price'] = $this->nullableFloat($value);
-    }
-
-    public function setLargePriceAttribute($value): void
-    {
-        $this->attributes['large_price'] = $this->nullableFloat($value);
-    }
-
-    public function setStockAttribute($value): void
-    {
-        $this->attributes['stock'] = max(0, (int) $value);
-    }
-
-    private function nullableFloat($value): ?float
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        return (float) $value;
     }
 }
