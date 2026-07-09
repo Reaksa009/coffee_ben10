@@ -148,6 +148,7 @@ Route::get('/debug-products', function () {
     return [
         'created_attributes' => $product->getAttributes(),
         'retrieved_attributes' => $retrieved ? $retrieved->getAttributes() : null,
+        'product_id_type' => gettype($product->id), 'retrieved_id_type' => $retrieved ? gettype($retrieved->id) : null, 'product_id_value' => $product->id, 'retrieved_id_value' => $retrieved ? $retrieved->id : null,
         'retrieved_stock_field' => $retrieved ? $retrieved->stock : null,
     ];
 });
