@@ -606,16 +606,16 @@
         }
 
         .app-card {
-            border-radius: 0.75rem !important;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.02) !important;
+            border-radius: 1rem !important;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.02), 0 8px 16px -6px rgba(15, 23, 42, 0.01) !important;
             border: 1px solid var(--line) !important;
             overflow: hidden;
-            transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
         
         .app-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.06) !important;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.08) !important;
         }
 
         .app-card-header {

@@ -6,72 +6,105 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 1.25rem;
-            padding: 1.35rem;
-            border: 1px solid var(--line);
-            border-radius: .5rem;
-            background: #fff;
-            box-shadow: var(--shadow);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem 1.75rem;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--brand), var(--accent));
         }
 
         .dashboard-title {
-            font-size: clamp(1.45rem, 2vw, 1.9rem);
+            font-size: clamp(1.6rem, 2.5vw, 2.1rem);
             font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--ink);
             margin: 0;
         }
 
         .dashboard-kicker {
             color: var(--accent);
-            font-size: .78rem;
+            font-size: 0.8rem;
             font-weight: 800;
-            letter-spacing: .04em;
-            margin-bottom: .35rem;
+            letter-spacing: .08em;
+            margin-bottom: 0.35rem;
             text-transform: uppercase;
         }
 
         .dashboard-subtitle {
-            color: #6c757d;
-            margin: .25rem 0 0;
+            color: #475569;
+            font-size: 0.95rem;
+            margin: .35rem 0 0;
         }
 
         .metric-card {
-            border: 1px solid var(--line);
-            border-radius: .5rem;
-            background: #fff;
-            padding: 1.1rem;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 1rem;
+            background: #ffffff;
+            padding: 1.5rem;
             height: 100%;
-            box-shadow: var(--shadow);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.02), 0 8px 16px -6px rgba(15, 23, 42, 0.01);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.08);
+            border-color: rgba(15, 118, 110, 0.2);
         }
 
         .metric-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: .5rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.35rem;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover .metric-icon {
+            transform: scale(1.1);
         }
 
         .metric-label {
-            color: #6c757d;
-            font-size: .86rem;
-            margin-bottom: .25rem;
+            color: #64748b;
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
         }
 
         .metric-value {
-            font-size: 1.7rem;
+            font-size: 2rem;
             font-weight: 800;
-            line-height: 1.15;
+            color: var(--ink);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
         }
 
         .panel {
-            border: 1px solid var(--line);
-            border-radius: .5rem;
-            background: #fff;
-            box-shadow: var(--shadow);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 1rem;
+            background: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.02), 0 8px 16px -6px rgba(15, 23, 42, 0.01);
             overflow: hidden;
+            transition: all 0.25s ease;
         }
 
         .panel-header {
@@ -79,113 +112,138 @@
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            padding: 1rem 1.1rem;
-            border-bottom: 1px solid var(--line);
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            background-color: #f8fafc;
         }
 
         .panel-title {
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--ink);
             margin: 0;
-        }
-
-        .dashboard-table {
-            margin: 0;
-        }
-
-        .dashboard-table th {
-            color: #6c757d;
-            font-size: .78rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            background: #f8f9fa;
-            border-bottom: 1px solid #eef1f4;
-        }
-
-        .dashboard-table td {
-            vertical-align: middle;
-        }
-
-        .empty-state {
-            padding: 2rem 1rem;
-            text-align: center;
-            color: #6c757d;
+            letter-spacing: -0.01em;
         }
 
         .dashboard-list {
             display: grid;
-            gap: .75rem;
-            padding: 1rem;
+            gap: 0.85rem;
+            padding: 1.25rem;
         }
 
         .dashboard-list-item {
             display: grid;
             grid-template-columns: auto minmax(0, 1fr) auto;
-            gap: .75rem;
+            gap: 1rem;
             align-items: center;
-            padding: .8rem;
-            border: 1px solid var(--line);
-            border-radius: .5rem;
-            background: #fff;
+            padding: 1rem;
+            border: 1px solid #f1f5f9;
+            border-radius: 0.75rem;
+            background: #ffffff;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+        }
+
+        .dashboard-list-item:hover {
+            transform: translateX(6px);
+            background: #f8fafc;
+            border-left-color: var(--brand);
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
         }
 
         .dashboard-item-icon {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: .5rem;
+            border-radius: 0.75rem;
             color: var(--brand);
-            background: rgba(20, 184, 166, .12);
+            background: rgba(15, 118, 110, 0.08);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-list-item:hover .dashboard-item-icon {
+            background: var(--brand);
+            color: #ffffff;
         }
 
         .dashboard-side-list {
             display: grid;
-            gap: .65rem;
-            padding: 1rem;
+            gap: 0.75rem;
+            padding: 1.25rem;
         }
 
         .dashboard-side-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: .75rem;
-            padding: .75rem;
-            border: 1px solid var(--line);
-            border-radius: .5rem;
+            gap: 1rem;
+            padding: 0.85rem 1rem;
+            border: 1px solid #f1f5f9;
+            border-radius: 0.75rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+        }
+
+        .dashboard-side-item:hover {
+            transform: translateX(6px);
+            background: #f8fafc;
+            border-left-color: var(--accent);
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
         }
 
         .bar-chart {
             display: grid;
             grid-template-columns: repeat(7, minmax(0, 1fr));
-            gap: .85rem;
-            min-height: 260px;
-            padding: 1rem 1rem 1.2rem;
+            gap: 1.25rem;
+            min-height: 280px;
+            padding: 1.5rem 1.5rem 1.75rem;
         }
 
         .bar-chart-item {
             display: grid;
             grid-template-rows: 1fr auto;
-            gap: .7rem;
+            gap: 0.85rem;
             min-width: 0;
+            transition: transform 0.2s ease;
+        }
+        
+        .bar-chart-item:hover {
+            transform: scale(1.03);
         }
 
         .bar-track {
             display: flex;
             align-items: end;
-            min-height: 190px;
-            border-radius: .5rem;
-            background: #eef2f7;
+            min-height: 200px;
+            border-radius: 0.75rem;
+            background: #f1f5f9;
+            border: 1px solid rgba(226, 232, 240, 0.5);
             overflow: hidden;
+            position: relative;
         }
 
         .bar-fill {
             width: 100%;
             min-height: 8px;
-            border-radius: .5rem .5rem 0 0;
-            background: linear-gradient(180deg, var(--brand), #2563eb);
-            transition: height .2s ease;
+            border-radius: 0.75rem 0.75rem 0 0;
+            background: linear-gradient(180deg, var(--brand), var(--brand-dark));
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
+            transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: growUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            height: 0;
+        }
+        
+        @keyframes growUp {
+            from { height: 0; }
+            to { height: var(--final-height); }
+        }
+        
+        .bar-chart-item:hover .bar-fill {
+            background: linear-gradient(180deg, var(--brand-dark), var(--brand));
+            box-shadow: 0 0 15px rgba(15, 118, 110, 0.4);
         }
 
         .bar-caption {
@@ -195,13 +253,23 @@
 
         .bar-label {
             font-weight: 800;
+            color: var(--ink);
+            font-size: 0.9rem;
             line-height: 1.1;
         }
 
-        .bar-date,
+        .bar-date {
+            color: #64748b;
+            font-size: 0.75rem;
+            margin-top: 0.15rem;
+            line-height: 1.25;
+        }
+        
         .bar-value {
-            color: #6c757d;
-            font-size: .78rem;
+            color: var(--brand);
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
             line-height: 1.25;
         }
 
@@ -209,6 +277,7 @@
             .dashboard-header {
                 align-items: stretch;
                 flex-direction: column;
+                padding: 1.25rem;
             }
 
             .dashboard-list-item {
@@ -218,11 +287,13 @@
             .dashboard-list-item > .text-end {
                 grid-column: 1 / -1;
                 text-align: left !important;
+                margin-top: 0.5rem;
+                padding-left: 3.5rem;
             }
 
             .bar-chart {
-                gap: .45rem;
-                padding-inline: .75rem;
+                gap: 0.5rem;
+                padding: 1rem 0.75rem;
             }
 
             .bar-track {
@@ -328,7 +399,7 @@
                 @endphp
                 <div class="bar-chart-item" title="{{ $point['date'] }}: ${{ number_format($point['revenue'], 2) }} from {{ $point['orders'] }} order(s)">
                     <div class="bar-track">
-                        <div class="bar-fill" style="height: {{ $height }}%;"></div>
+                        <div class="bar-fill" style="--final-height: {{ $height }}%;"></div>
                     </div>
                     <div class="bar-caption">
                         <div class="bar-label">{{ $point['label'] }}</div>
