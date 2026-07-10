@@ -140,11 +140,9 @@
             </div>
             <div class="col-lg-4">
                 <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
-                    <span class="pos-chip"><i class="bi bi-cup-hot me-1"></i>{{ $cartQuantity }}
-                        Cart{{ $cartQuantity === 1 ? '' : 's' }}</span>
-                    <span class="pos-chip"><i class="bi bi-basket2 me-1"></i>{{ $cartCount }}
-                        item{{ $cartCount === 1 ? '' : 's' }}</span>
-                    <span class="pos-chip"><i class="bi bi-cash-coin me-1"></i>${{ number_format($cartTotal, 2) }}</span>
+                    <a href="{{ route('customer-display.show', ['cashier' => auth()->id()]) }}" target="_blank" class="btn btn-outline-secondary">
+                        <i class="bi bi-display me-1"></i> Customer Screen
+                    </a>
                     <a href="{{ route('pos.checkout') }}" class="btn btn-success">
                         <i class="bi bi-bag-check me-1"></i> Checkout
                     </a>

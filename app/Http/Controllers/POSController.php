@@ -21,6 +21,8 @@ class POSController extends Controller
 
     public function index()
     {
+        $this->updateCustomerDisplayState();
+
         $categories = Product::categoryOptions();
         $selectedCategory = request('category');
         $selectedCategoryIds = Category::idsForName($selectedCategory);
@@ -72,6 +74,8 @@ class POSController extends Controller
         ];
 
         session()->put('cart', $cart);
+
+        $this->updateCustomerDisplayState();
 
         return redirect()->back();
     }
@@ -135,6 +139,8 @@ class POSController extends Controller
     {
         session()->forget('cart');
 
+        $this->updateCustomerDisplayState();
+
         return redirect()->route('pos.index')->with('success', 'Cart cleared.');
     }
 
@@ -148,6 +154,8 @@ class POSController extends Controller
 
         unset($cart[$index]);
         session()->put('cart', array_values($cart));
+
+        $this->updateCustomerDisplayState();
 
         return redirect()->back()->with('success', 'Item removed from cart.');
     }
@@ -285,6 +293,8 @@ class POSController extends Controller
         session()->forget('promo_code');
         session()->forget('discount_amount');
 
+        $this->updateCustomerDisplayState($order->id);
+
         ActivityLogger::log('order.created', 'Created order ' . $order->display_order_label, $order, [
             'total_amount' => $order->total_amount,
             'order_type' => $order->order_type,
@@ -364,5 +374,30 @@ class POSController extends Controller
         }
 
         return ((int) $query->max('daily_order_number')) + 1;
+    }
+
+    private function updateCustomerDisplayState(?int $orderId = null): void
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return;
+        }
+
+        $cart = session()->get('cart', []);
+        $total = collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']);
+        $discountAmount = session()->get('discount_amount', 0);
+        $finalTotal = $total - $discountAmount;
+
+        $state = [
+            'cart' => $cart,
+            'total' => $total,
+            'discount' => $discountAmount,
+            'final_total' => $finalTotal,
+            'order_id' => $orderId,
+            'updated_at' => now()->toDateTimeString(),
+        ];
+
+        $user->customer_display_state = json_encode($state);
+        $user->save();
     }
 }

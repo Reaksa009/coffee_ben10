@@ -10,6 +10,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\CashierShiftController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerDisplayController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
@@ -37,6 +38,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 });
+
+Route::get('/customer-display/{cashier}', [CustomerDisplayController::class, 'show'])->name('customer-display.show');
+Route::get('/customer-display/{cashier}/state', [CustomerDisplayController::class, 'state'])->name('customer-display.state');
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 

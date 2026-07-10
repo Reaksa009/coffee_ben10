@@ -374,6 +374,9 @@
             <p class="dashboard-subtitle">Track orders, payments, and stock without leaving the counter.</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ route('customer-display.show', ['cashier' => auth()->id()]) }}" target="_blank" class="btn btn-outline-secondary">
+                <i class="bi bi-display me-1"></i> Customer Screen
+            </a>
             <a href="{{ route('pos.index') }}" class="btn btn-primary">
                 <i class="bi bi-cup-hot me-1"></i> New Sale
             </a>
