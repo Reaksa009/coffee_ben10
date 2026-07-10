@@ -45,6 +45,7 @@
                             <th>Current Role</th>
                             <th>Set Permission</th>
                             <th>Change Password</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,6 +92,19 @@
                                             </button>
                                         </div>
                                     </form>
+                                </td>
+                                <td class="text-end" style="min-width: 120px;">
+                                    @if($user->id !== auth()->id())
+                                        <form method="POST" action="{{ route('users.destroy', $user) }}" class="confirm-delete d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete User">
+                                                <i class="bi bi-trash me-1"></i> Delete
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-muted small">Active Session</span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

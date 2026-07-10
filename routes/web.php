@@ -72,6 +72,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role.update');
         Route::patch('/users/{user}/password', [UserController::class, 'updatePassword'])->name('users.password.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
     Route::middleware('role:admin,manager')->group(function () {

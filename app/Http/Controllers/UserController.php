@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -60,6 +61,30 @@ class UserController extends Controller
         return redirect()
             ->route('users.index')
             ->with('success', "{$user->name}'s password was changed.");
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        if ($user->id === auth()->id()) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'You cannot delete your own account.');
+        }
+
+        if ($user->role === User::ROLE_ADMIN && User::where('role', User::ROLE_ADMIN)->count() <= 1) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'At least one admin account is required.');
+        }
+
+        $name = $user->name;
+        $user->delete();
+
+        ActivityLogger::log('user.deleted', 'Deleted user account ' . $name, $user);
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', "User {$name} has been deleted successfully.");
     }
 
     private function roles(): array

@@ -181,4 +181,56 @@ class PermissionTest extends TestCase
 
         $this->assertTrue(Hash::check('old-secure-password', $manager->fresh()->password));
     }
+
+    public function test_admin_can_delete_users_but_not_self_or_last_admin(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $otherCashier = User::factory()->create(['role' => User::ROLE_CASHIER]);
+        $otherAdmin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        // 1. Admin deletes other cashier (should succeed)
+        $this->actingAs($admin)
+            ->delete(route('users.destroy', $otherCashier))
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('users', ['id' => $otherCashier->id]);
+
+        // 2. Admin tries to delete self (should fail)
+        $this->actingAs($admin)
+            ->delete(route('users.destroy', $admin))
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('error', 'You cannot delete your own account.');
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+
+        // 3. Admin deletes otherAdmin (should succeed)
+        $this->actingAs($admin)
+            ->delete(route('users.destroy', $otherAdmin))
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('users', ['id' => $otherAdmin->id]);
+    }
+
+    public function test_non_admin_cannot_delete_users(): void
+    {
+        $manager = User::factory()->create(['role' => User::ROLE_MANAGER]);
+        $cashier = User::factory()->create(['role' => User::ROLE_CASHIER]);
+        $otherCashier = User::factory()->create(['role' => User::ROLE_CASHIER]);
+
+        // Manager cannot delete
+        $this->actingAs($manager)
+            ->delete(route('users.destroy', $otherCashier))
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertDatabaseHas('users', ['id' => $otherCashier->id]);
+
+        // Cashier cannot delete
+        $this->actingAs($cashier)
+            ->delete(route('users.destroy', $otherCashier))
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertDatabaseHas('users', ['id' => $otherCashier->id]);
+    }
 }
