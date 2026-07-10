@@ -1,20 +1,76 @@
-@extends('layouts.app')
-
-@section('content')
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Customer Display - Coffee Ben10</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f766e'/%3E%3Ctext x='32' y='39' font-family='Arial,sans-serif' font-size='22' font-weight='700' text-anchor='middle' fill='white'%3ECB%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
     <style>
-        /* Modern, cute cafe aesthetic overrides for customer display */
+        :root {
+            --brand: #0f766e;
+            --brand-dark: #115e59;
+            --accent: #d97706;
+            --ink: #111827;
+            --muted: #64748b;
+            --line: rgba(229, 218, 206, 0.4);
+            --surface: #ffffff;
+            --soft: #faf8f5;
+            --surface-subtle: #fdfcfb;
+            --shadow: 0 10px 24px rgba(15, 23, 42, .06);
+        }
+
         body {
             background: radial-gradient(circle at top left, #faf8f5, #f5efe6) !important;
-            font-family: 'Quicksand', sans-serif !important;
+            font-family: 'Quicksand', 'Nunito', sans-serif !important;
+            color: var(--ink);
+            min-height: 100vh;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        .display-logo-header {
+            background: #ffffff;
+            border-bottom: 2px solid rgba(229, 218, 206, 0.4);
+            padding: 1.25rem 0;
+            box-shadow: 0 4px 20px rgba(141, 91, 76, 0.03);
+            z-index: 10;
+        }
+
+        .logo-mark {
+            width: 46px;
+            height: 46px;
+            border-radius: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--brand), var(--accent));
+            font-size: 1.4rem;
+            box-shadow: 0 8px 20px rgba(15, 118, 110, .2);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: -0.01em;
         }
 
         .customer-display-container {
-            min-height: calc(100vh - 120px);
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
-            padding: 1rem;
+            padding: 2rem 1.5rem;
         }
 
         .display-card {
@@ -121,7 +177,7 @@
         .item-name {
             font-weight: 800;
             color: #1e293b;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
         }
 
         .item-options {
@@ -172,7 +228,7 @@
         .total-label {
             font-weight: 700;
             color: #64748b;
-            font-size: 1rem;
+            font-size: 1.05rem;
         }
 
         .total-value {
@@ -194,7 +250,7 @@
         }
 
         .grand-total .total-value {
-            font-size: 2rem;
+            font-size: 2.1rem;
             color: var(--brand);
             font-weight: 800;
         }
@@ -282,7 +338,7 @@
         }
 
         .khqr-amount {
-            font-size: 1.75rem;
+            font-size: 1.85rem;
             font-weight: 800;
             color: #1e293b;
             margin-bottom: 0.25rem;
@@ -362,13 +418,32 @@
             font-size: 1.25rem;
         }
 
-        /* Responsive Column layout */
+        .display-footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.85rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid rgba(229, 218, 206, 0.3);
+            background: #ffffff;
+            margin-top: auto;
+        }
+
         @media (max-width: 991.98px) {
             .customer-display-container {
                 flex-direction: column;
             }
         }
     </style>
+</head>
+<body>
+
+    <!-- Logo Header (No Cashier Sidebar or Topbar) -->
+    <header class="display-logo-header text-center">
+        <div class="d-flex align-items-center justify-content-center gap-3">
+            <span class="logo-mark"><i class="bi bi-cup-hot"></i></span>
+            <span class="logo-text">Coffee Ben10</span>
+        </div>
+    </header>
 
     <div class="container-fluid customer-display-container">
         <div class="row g-4 flex-grow-1">
@@ -415,7 +490,11 @@
         </div>
     </div>
 
-    <!-- Celebration effects & sound if desired -->
+    <footer class="display-footer">
+        Copyright &copy; {{ date('Y') }} by Coffee Ben10. Powered by Bakong KHQR.
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const cashierId = "{{ $cashier->id }}";
@@ -460,7 +539,7 @@
                     itemsHtml = `
                         <div class="text-center text-muted my-auto py-5">
                             <i class="bi bi-cup-hot fs-1 opacity-25"></i>
-                            <div class="mt-3 font-semibold">Your cart is empty.</div>
+                            <div class="mt-3 font-semibold text-muted">Your cart is empty.</div>
                             <div class="small">Items will show up as they are added by the cashier.</div>
                         </div>
                     `;
@@ -636,4 +715,5 @@
             pollState();
         });
     </script>
-@endsection
+</body>
+</html>
