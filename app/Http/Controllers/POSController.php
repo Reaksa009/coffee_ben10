@@ -376,7 +376,7 @@ class POSController extends Controller
         return ((int) $query->max('daily_order_number')) + 1;
     }
 
-    private function updateCustomerDisplayState(?int $orderId = null): void
+    private function updateCustomerDisplayState(string|int|null $orderId = null): void
     {
         $user = auth()->user();
         if (!$user) {
