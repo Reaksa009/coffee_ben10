@@ -8,11 +8,11 @@
             justify-content: space-between;
             gap: 1.5rem;
             margin-bottom: 1.5rem;
-            padding: 1.5rem 1.75rem;
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            border-radius: 1rem;
-            background: linear-gradient(135deg, #ffffff, #f8fafc);
-            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.04);
+            padding: 1.75rem 2rem;
+            border: 2px solid rgba(229, 218, 206, 0.4);
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, #ffffff, #fdfbf7);
+            box-shadow: 0 10px 30px rgba(141, 91, 76, 0.03);
             position: relative;
             overflow: hidden;
         }
@@ -22,21 +22,21 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 4px;
+            width: 6px;
             height: 100%;
-            background: linear-gradient(to bottom, var(--brand), var(--accent));
+            background: linear-gradient(to bottom, #0f766e, #d97706);
         }
 
         .dashboard-title {
             font-size: clamp(1.6rem, 2.5vw, 2.1rem);
             font-weight: 800;
             letter-spacing: -0.02em;
-            color: var(--ink);
+            color: #1e293b;
             margin: 0;
         }
 
         .dashboard-kicker {
-            color: var(--accent);
+            color: #d97706;
             font-size: 0.8rem;
             font-weight: 800;
             letter-spacing: .08em;
@@ -51,58 +51,107 @@
         }
 
         .metric-card {
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            border-radius: 1rem;
-            background: #ffffff;
-            padding: 1.5rem;
+            border: 2px solid rgba(229, 218, 206, 0.3);
+            border-radius: 1.5rem;
+            padding: 1.75rem;
             height: 100%;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.02), 0 8px 16px -6px rgba(15, 23, 42, 0.01);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 25px rgba(141, 91, 76, 0.02);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
         }
 
         .metric-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.08);
-            border-color: rgba(15, 118, 110, 0.2);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 20px 35px rgba(141, 91, 76, 0.08);
+        }
+
+        .metric-card.type-orders {
+            background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+            border-color: rgba(186, 230, 253, 0.4);
+        }
+        .metric-card.type-orders .metric-icon {
+            background: #bae6fd;
+            color: #0369a1;
+        }
+        .metric-card.type-orders .metric-value,
+        .metric-card.type-orders .metric-label {
+            color: #0369a1;
+        }
+
+        .metric-card.type-revenue {
+            background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+            border-color: rgba(187, 247, 208, 0.4);
+        }
+        .metric-card.type-revenue .metric-icon {
+            background: #bbf7d0;
+            color: #15803d;
+        }
+        .metric-card.type-revenue .metric-value,
+        .metric-card.type-revenue .metric-label {
+            color: #15803d;
+        }
+
+        .metric-card.type-pending {
+            background: linear-gradient(135deg, #fef3c7, #fffbeb);
+            border-color: rgba(253, 230, 138, 0.4);
+        }
+        .metric-card.type-pending .metric-icon {
+            background: #fde68a;
+            color: #b45309;
+        }
+        .metric-card.type-pending .metric-value,
+        .metric-card.type-pending .metric-label {
+            color: #b45309;
+        }
+
+        .metric-card.type-stock {
+            background: linear-gradient(135deg, #ffe4e6, #fff1f2);
+            border-color: rgba(254, 205, 211, 0.4);
+        }
+        .metric-card.type-stock .metric-icon {
+            background: #fecdd3;
+            color: #be123c;
+        }
+        .metric-card.type-stock .metric-value,
+        .metric-card.type-stock .metric-label {
+            color: #be123c;
         }
 
         .metric-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 0.75rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 1rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             transition: all 0.3s ease;
         }
         
         .metric-card:hover .metric-icon {
-            transform: scale(1.1);
+            transform: scale(1.15) rotate(5deg);
         }
 
         .metric-label {
-            color: #64748b;
-            font-size: 0.88rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
             margin-bottom: 0.35rem;
+            letter-spacing: 0.01em;
         }
 
         .metric-value {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
-            color: var(--ink);
             line-height: 1.1;
             letter-spacing: -0.02em;
         }
 
         .panel {
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            border-radius: 1rem;
+            border: 2px solid rgba(229, 218, 206, 0.4);
+            border-radius: 1.5rem;
             background: #ffffff;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.02), 0 8px 16px -6px rgba(15, 23, 42, 0.01);
+            box-shadow: 0 10px 25px rgba(141, 91, 76, 0.02);
             overflow: hidden;
             transition: all 0.25s ease;
         }
@@ -112,15 +161,15 @@
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid #f1f5f9;
-            background-color: #f8fafc;
+            padding: 1.25rem 1.75rem;
+            border-bottom: 2px solid rgba(229, 218, 206, 0.3);
+            background-color: #fdfcfb;
         }
 
         .panel-title {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 800;
-            color: var(--ink);
+            color: #1e293b;
             margin: 0;
             letter-spacing: -0.01em;
         }
@@ -128,51 +177,52 @@
         .dashboard-list {
             display: grid;
             gap: 0.85rem;
-            padding: 1.25rem;
+            padding: 1.5rem;
         }
 
         .dashboard-list-item {
             display: grid;
             grid-template-columns: auto minmax(0, 1fr) auto;
-            gap: 1rem;
+            gap: 1.25rem;
             align-items: center;
-            padding: 1rem;
-            border: 1px solid #f1f5f9;
-            border-radius: 0.75rem;
+            padding: 1.15rem;
+            border: 2px solid rgba(229, 218, 206, 0.2);
+            border-radius: 1.25rem;
             background: #ffffff;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 4px solid transparent;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-left: 5px solid transparent;
         }
 
         .dashboard-list-item:hover {
-            transform: translateX(6px);
-            background: #f8fafc;
+            transform: translateX(8px);
+            background: #fdfbf7;
             border-left-color: var(--brand);
-            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
+            box-shadow: 0 5px 18px rgba(141, 91, 76, 0.04);
         }
 
         .dashboard-item-icon {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             color: var(--brand);
             background: rgba(15, 118, 110, 0.08);
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             transition: all 0.3s ease;
         }
         
         .dashboard-list-item:hover .dashboard-item-icon {
             background: var(--brand);
             color: #ffffff;
+            transform: scale(1.1) rotate(-5deg);
         }
 
         .dashboard-side-list {
             display: grid;
             gap: 0.75rem;
-            padding: 1.25rem;
+            padding: 1.5rem;
         }
 
         .dashboard-side-item {
@@ -180,26 +230,26 @@
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            padding: 0.85rem 1rem;
-            border: 1px solid #f1f5f9;
-            border-radius: 0.75rem;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 4px solid transparent;
+            padding: 1rem 1.25rem;
+            border: 2px solid rgba(229, 218, 206, 0.2);
+            border-radius: 1.25rem;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-left: 5px solid transparent;
         }
 
         .dashboard-side-item:hover {
-            transform: translateX(6px);
-            background: #f8fafc;
+            transform: translateX(8px);
+            background: #fdfbf7;
             border-left-color: var(--accent);
-            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
+            box-shadow: 0 5px 18px rgba(141, 91, 76, 0.04);
         }
 
         .bar-chart {
             display: grid;
             grid-template-columns: repeat(7, minmax(0, 1fr));
-            gap: 1.25rem;
-            min-height: 280px;
-            padding: 1.5rem 1.5rem 1.75rem;
+            gap: 1.5rem;
+            min-height: 290px;
+            padding: 1.75rem 1.75rem 2rem;
         }
 
         .bar-chart-item {
@@ -207,20 +257,20 @@
             grid-template-rows: 1fr auto;
             gap: 0.85rem;
             min-width: 0;
-            transition: transform 0.2s ease;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
         .bar-chart-item:hover {
-            transform: scale(1.03);
+            transform: scale(1.06);
         }
 
         .bar-track {
             display: flex;
             align-items: end;
             min-height: 200px;
-            border-radius: 0.75rem;
-            background: #f1f5f9;
-            border: 1px solid rgba(226, 232, 240, 0.5);
+            border-radius: 1.5rem;
+            background: #fcfaf7;
+            border: 2px solid rgba(229, 218, 206, 0.4);
             overflow: hidden;
             position: relative;
         }
@@ -228,11 +278,11 @@
         .bar-fill {
             width: 100%;
             min-height: 8px;
-            border-radius: 0.75rem 0.75rem 0 0;
-            background: linear-gradient(180deg, var(--brand), var(--brand-dark));
-            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
-            transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            animation: growUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            border-radius: 1.5rem 1.5rem 0 0;
+            background: linear-gradient(180deg, #d97706, #f59e0b);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+            transition: height 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: growUp 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             height: 0;
         }
         
@@ -242,8 +292,8 @@
         }
         
         .bar-chart-item:hover .bar-fill {
-            background: linear-gradient(180deg, var(--brand-dark), var(--brand));
-            box-shadow: 0 0 15px rgba(15, 118, 110, 0.4);
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+            box-shadow: 0 0 15px rgba(217, 119, 6, 0.5);
         }
 
         .bar-caption {
@@ -253,7 +303,7 @@
 
         .bar-label {
             font-weight: 800;
-            color: var(--ink);
+            color: #1e293b;
             font-size: 0.9rem;
             line-height: 1.1;
         }
@@ -267,8 +317,8 @@
         
         .bar-value {
             color: var(--brand);
-            font-weight: 700;
-            font-size: 0.85rem;
+            font-weight: 800;
+            font-size: 0.9rem;
             margin-top: 0.25rem;
             line-height: 1.25;
         }
@@ -277,7 +327,7 @@
             .dashboard-header {
                 align-items: stretch;
                 flex-direction: column;
-                padding: 1.25rem;
+                padding: 1.5rem;
             }
 
             .dashboard-list-item {
@@ -335,9 +385,9 @@
 
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="metric-card">
+            <div class="metric-card type-orders">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="metric-icon text-primary bg-primary bg-opacity-10">
+                    <div class="metric-icon">
                         <i class="bi bi-receipt-cutoff"></i>
                     </div>
                     <span class="badge text-bg-light">All time</span>
@@ -347,9 +397,9 @@
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="metric-card">
+            <div class="metric-card type-revenue">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="metric-icon text-success bg-success bg-opacity-10">
+                    <div class="metric-icon">
                         <i class="bi bi-cash-coin"></i>
                     </div>
                     <span class="badge text-bg-success">Paid</span>
@@ -359,9 +409,9 @@
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="metric-card">
+            <div class="metric-card type-pending">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="metric-icon text-warning bg-warning bg-opacity-10">
+                    <div class="metric-icon">
                         <i class="bi bi-hourglass-split"></i>
                     </div>
                     <span class="badge text-bg-warning">Open</span>
@@ -371,9 +421,9 @@
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="metric-card">
+            <div class="metric-card type-stock">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="metric-icon text-danger bg-danger bg-opacity-10">
+                    <div class="metric-icon">
                         <i class="bi bi-exclamation-triangle"></i>
                     </div>
                     <span class="badge text-bg-light">{{ number_format($totalProducts) }} products</span>

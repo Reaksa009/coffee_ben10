@@ -9,7 +9,7 @@
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f766e'/%3E%3Ctext x='32' y='39' font-family='Arial,sans-serif' font-size='22' font-weight='700' text-anchor='middle' fill='white'%3ECB%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -19,18 +19,17 @@
             --accent: #d97706;
             --ink: #111827;
             --muted: #64748b;
-            --line: #dbe4ef;
+            --line: rgba(229, 218, 206, 0.4);
             --surface: #ffffff;
-            --soft: #f5f7fb;
-            --surface-subtle: #f8fafc;
+            --soft: #faf8f5;
+            --surface-subtle: #fdfcfb;
             --shadow: 0 10px 24px rgba(15, 23, 42, .06);
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-family: 'Quicksand', 'Nunito', sans-serif !important;
             background: var(--soft);
             color: var(--ink);
-            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
         }
 
         .navbar {
@@ -583,10 +582,10 @@
 
         /* Premium aesthetics override settings */
         .form-control, .form-select {
-            border-radius: 0.5rem !important;
+            border-radius: 1.5rem !important;
             border-color: #cbd5e1 !important;
-            padding: 0.55rem 0.75rem !important;
-            font-size: 0.88rem !important;
+            padding: 0.6rem 1rem !important;
+            font-size: 0.9rem !important;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
         }
 
@@ -597,8 +596,9 @@
 
         .btn {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            border-radius: 0.5rem !important;
-            font-weight: 600 !important;
+            border-radius: 1.5rem !important;
+            font-weight: 700 !important;
+            padding: 0.6rem 1.25rem !important;
         }
         
         .btn-primary:active, .btn-primary:focus {
@@ -606,7 +606,7 @@
         }
 
         .app-card {
-            border-radius: 1rem !important;
+            border-radius: 1.5rem !important;
             box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.02), 0 8px 16px -6px rgba(15, 23, 42, 0.01) !important;
             border: 1px solid var(--line) !important;
             overflow: hidden;
