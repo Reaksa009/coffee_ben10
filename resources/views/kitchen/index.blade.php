@@ -477,7 +477,7 @@
                 if (order.order_type === 'delivery') typeClass = 'type-delivery';
 
                 // Timer calculation/warning
-                const elapsed = order.elapsed_minutes;
+                const elapsed = Math.round(order.elapsed_minutes);
                 const timerClass = elapsed >= 10 ? 'timer-warning' : '';
                 const timeText = elapsed === 0 ? 'Just now' : `${elapsed}m ago`;
 

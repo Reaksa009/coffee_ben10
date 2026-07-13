@@ -36,7 +36,7 @@ class KitchenController extends Controller
                     'service_label' => $order->service_label,
                     'preparation_status' => $order->preparation_status,
                     'created_at' => $order->created_at->toIso8601String(),
-                    'elapsed_minutes' => $order->created_at->diffInMinutes(now()),
+                    'elapsed_minutes' => (int) $order->created_at->diffInMinutes(now()),
                     'items' => $order->items->map(function ($item) {
                         return [
                             'name' => $item->product->name ?? 'Unknown Drink',
