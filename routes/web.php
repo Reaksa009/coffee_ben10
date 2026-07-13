@@ -13,6 +13,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerDisplayController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InventoryAuditController;
+use App\Http\Controllers\KitchenController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
@@ -42,9 +44,18 @@ Route::middleware('guest')->group(function () {
 Route::get('/customer-display/{cashier}', [CustomerDisplayController::class, 'show'])->name('customer-display.show');
 Route::get('/customer-display/{cashier}/state', [CustomerDisplayController::class, 'state'])->name('customer-display.state');
 
+// Public pickup board routes
+Route::get('/pickup', [KitchenController::class, 'pickupDisplay'])->name('kitchen.pickup');
+Route::get('/pickup/state', [KitchenController::class, 'pickupState'])->name('kitchen.pickup-state');
+
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
+    // Protected barista KDS routes
+    Route::get('/kitchen', [KitchenController::class, 'index'])->name('kitchen.index');
+    Route::get('/kitchen/orders', [KitchenController::class, 'activeOrders'])->name('kitchen.orders');
+    Route::post('/kitchen/orders/{order}/status', [KitchenController::class, 'updateStatus'])->name('kitchen.orders.status');
+
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile.show');
     Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
     Route::post('/profile/password', [AuthController::class, 'updatePassword'])->name('profile.password.update');
@@ -94,6 +105,12 @@ Route::middleware('auth')->group(function () {
 
         // Ingredient inventory and recipes
         Route::resource('inventory', InventoryController::class)->except(['create', 'show', 'edit']);
+        Route::resource('inventory/audits', InventoryAuditController::class)->only(['index', 'create', 'store', 'show'])->names([
+            'index' => 'audits.index',
+            'create' => 'audits.create',
+            'store' => 'audits.store',
+            'show' => 'audits.show',
+        ]);
 
         // Orders (admin)
         Route::resource('orders', OrderController::class)->only(['index', 'show']);

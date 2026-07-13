@@ -10,8 +10,26 @@ class Order extends DatabaseModel
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($order) {
+            if ($order->isDirty('status') && $order->status === 'paid' && is_null($order->preparation_status)) {
+                $order->preparation_status = 'queued';
+            }
+        });
+
+        static::creating(function ($order) {
+            if ($order->status === 'paid' && is_null($order->preparation_status)) {
+                $order->preparation_status = 'queued';
+            }
+        });
+    }
+
     protected $attributes = [
         'status' => 'pending',
+        'preparation_status' => null,
         'discount_amount' => 0,
         'promo_discount_amount' => 0,
         'loyalty_discount_amount' => 0,
@@ -31,6 +49,7 @@ class Order extends DatabaseModel
         'subtotal_amount',
         'total_amount',
         'status',
+        'preparation_status',
         'promo_id',
         'discount_amount',
         'promo_discount_amount',

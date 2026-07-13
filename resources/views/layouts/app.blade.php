@@ -728,7 +728,76 @@
         .border-rose-subtle {
             border-color: #fecdd3 !important;
         }
+
+        /* Custom Espresso Dark Mode colors */
+        [data-bs-theme="dark"] {
+            --brand: #14b8a6;
+            --brand-dark: #0d9488;
+            --accent: #f59e0b;
+            --ink: #f8fafc;
+            --muted: #94a3b8;
+            --line: rgba(255, 255, 255, 0.08);
+            --surface: #1e293b;
+            --soft: #0f172a;
+            --surface-subtle: #1e293b;
+            background-color: var(--soft) !important;
+        }
+        [data-bs-theme="dark"] body {
+            background-color: var(--soft) !important;
+            color: var(--ink) !important;
+        }
+        [data-bs-theme="dark"] .app-topbar {
+            background: rgba(30, 41, 59, 0.85) !important;
+            border-bottom: 1px solid var(--line);
+        }
+        [data-bs-theme="dark"] .app-card, [data-bs-theme="dark"] .card {
+            background-color: var(--surface) !important;
+            border-color: var(--line) !important;
+            color: var(--ink) !important;
+        }
+        [data-bs-theme="dark"] .topbar-user {
+            background-color: var(--surface) !important;
+            border-color: var(--line) !important;
+            color: var(--ink) !important;
+        }
+        [data-bs-theme="dark"] .user-avatar {
+            background: rgba(20, 184, 166, 0.2) !important;
+        }
+        [data-bs-theme="dark"] .app-table th {
+            background-color: #1e293b !important;
+            color: #94a3b8 !important;
+        }
+        [data-bs-theme="dark"] .app-table td {
+            color: #e2e8f0 !important;
+            border-bottom-color: var(--line) !important;
+        }
+        [data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+        [data-bs-theme="dark"] .form-control:focus, [data-bs-theme="dark"] .form-select:focus {
+            border-color: var(--brand) !important;
+            background-color: #0f172a !important;
+        }
+        [data-bs-theme="dark"] .offcanvas {
+            background-color: var(--surface) !important;
+            color: var(--ink) !important;
+        }
+        [data-bs-theme="dark"] .nav-link {
+            color: #cbd5e1 !important;
+        }
+        [data-bs-theme="dark"] .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: white !important;
+        }
     </style>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
     {{-- @viteWhenAvailable --}}
 </head>
 
@@ -762,6 +831,9 @@
                     <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary btn-sm" title="Edit Profile">
                         <i class="bi bi-person"></i>
                     </a>
+                    <button class="btn btn-outline-secondary btn-sm" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                        <i class="bi bi-moon-stars" id="theme-toggle-icon"></i>
+                    </button>
                     <div class="topbar-user">
                     <span class="user-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}</span>
                         <span class="d-none d-sm-inline small fw-semibold">{{ auth()->user()->name }}</span>
@@ -804,6 +876,8 @@
                             href="{{ route('pos.index') }}"><i class="bi bi-cup-hot"></i> POS</a></li>
                     <li class="nav-item"><a class="nav-link {{ Request::routeIs('cashier-shifts.*') ? 'active' : '' }}"
                             href="{{ route('cashier-shifts.index') }}"><i class="bi bi-cash-stack"></i> Shift Closing</a></li>
+                    <li class="nav-item"><a class="nav-link {{ Request::routeIs('kitchen.index') ? 'active' : '' }}"
+                            href="{{ route('kitchen.index') }}"><i class="bi bi-cup-hot-fill"></i> Barista KDS</a></li>
                     @if(auth()->user()->canManageBackOffice())
                         <li class="nav-item">
                             <button class="nav-link sidebar-dropdown-toggle {{ $settingsOpen ? 'active' : '' }}" type="button"
@@ -821,6 +895,8 @@
                                         href="{{ route('promos.index') }}"><i class="bi bi-percent"></i> Discounts</a>
                                     <a class="nav-link {{ Request::routeIs('inventory.*') ? 'active' : '' }}"
                                         href="{{ route('inventory.index') }}"><i class="bi bi-boxes"></i> Inventory</a>
+                                    <a class="nav-link {{ Request::routeIs('audits.*') ? 'active' : '' }}"
+                                        href="{{ route('audits.index') }}"><i class="bi bi-clipboard2-check"></i> Stock Audits</a>
                                     <a class="nav-link {{ Request::routeIs('shop-settings.*') ? 'active' : '' }}"
                                         href="{{ route('shop-settings.edit') }}"><i class="bi bi-shop"></i> Shop Settings</a>
                                 </div>
@@ -897,6 +973,10 @@
                             <a class="nav-link {{ Request::routeIs('cashier-shifts.*') ? 'active' : '' }}"
                                 href="{{ route('cashier-shifts.index') }}"><i class="bi bi-cash-stack"></i> Shift Closing</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::routeIs('kitchen.index') ? 'active' : '' }}"
+                                href="{{ route('kitchen.index') }}"><i class="bi bi-cup-hot-fill"></i> Barista KDS</a>
+                        </li>
                         @if(auth()->user()->canManageBackOffice())
                             <li class="nav-item">
                                 <button class="nav-link sidebar-dropdown-toggle {{ $settingsOpen ? 'active' : '' }}" type="button"
@@ -914,6 +994,8 @@
                                             href="{{ route('promos.index') }}"><i class="bi bi-percent"></i> Discounts</a>
                                         <a class="nav-link {{ Request::routeIs('inventory.*') ? 'active' : '' }}"
                                             href="{{ route('inventory.index') }}"><i class="bi bi-boxes"></i> Inventory</a>
+                                        <a class="nav-link {{ Request::routeIs('audits.*') ? 'active' : '' }}"
+                                            href="{{ route('audits.index') }}"><i class="bi bi-clipboard2-check"></i> Stock Audits</a>
                                         <a class="nav-link {{ Request::routeIs('shop-settings.*') ? 'active' : '' }}"
                                             href="{{ route('shop-settings.edit') }}"><i class="bi bi-shop"></i> Shop Settings</a>
                                     </div>
@@ -1063,6 +1145,33 @@
                     }
                 });
             });
+
+            // Theme toggle script
+            const toggleBtn = document.getElementById('theme-toggle-btn');
+            const toggleIcon = document.getElementById('theme-toggle-icon');
+            
+            function updateToggleIcon(theme) {
+                if (theme === 'dark') {
+                    toggleIcon.className = 'bi bi-sun';
+                } else {
+                    toggleIcon.className = 'bi bi-moon-stars';
+                }
+            }
+
+            // Set initial icon state
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+            updateToggleIcon(currentTheme);
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function () {
+                    const activeTheme = document.documentElement.getAttribute('data-bs-theme');
+                    const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+                    
+                    document.documentElement.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    updateToggleIcon(newTheme);
+                });
+            }
         });
     </script>
     @yield('scripts')

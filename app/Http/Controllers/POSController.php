@@ -11,8 +11,10 @@ use App\Models\Promo;
 use App\Models\ShopSetting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use App\Services\LoyaltyService;
 use App\Services\ActivityLogger;
+use App\Services\TelegramNotificationService;
 
 class POSController extends Controller
 {
@@ -242,6 +244,17 @@ class POSController extends Controller
 
                         $inventoryItem->quantity_on_hand = round($inventoryItem->quantity_on_hand - $neededQuantity, 3);
                         $inventoryItem->save();
+
+                        if ($inventoryItem->is_low_stock) {
+                            Cache::remember('low_stock_telegram_' . $inventoryItem->id, 86400, function () use ($inventoryItem) {
+                                try {
+                                    app(TelegramNotificationService::class)->sendLowStockAlert($inventoryItem);
+                                } catch (\Throwable $e) {
+                                    report($e);
+                                }
+                                return true;
+                            });
+                        }
                     }
                 }
 

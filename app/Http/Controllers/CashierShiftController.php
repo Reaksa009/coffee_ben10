@@ -106,6 +106,13 @@ class CashierShiftController extends Controller
             'notes' => $data['notes'] ?? $cashierShift->notes,
         ]);
 
+        try {
+            $telegram = app(\App\Services\TelegramNotificationService::class);
+            $telegram->sendShiftCloseSummary($cashierShift->fresh(['user']));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         return redirect()->route('cashier-shifts.index')
             ->with('success', 'Shift closed successfully.');
     }
