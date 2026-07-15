@@ -224,11 +224,16 @@
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input id="password" type="password" name="password"
-                                class="form-control @error('password') is-invalid @enderror" required>
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input id="password" type="password" name="password"
+                                    class="form-control @error('password') is-invalid @enderror" required>
+                                <button class="btn btn-outline-secondary toggle-password-btn" type="button" data-target="password">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                             
                             <!-- Password Requirements Checklist -->
                             <div class="card mt-2 border-0 bg-body-tertiary shadow-sm p-3 password-checklist-card">
@@ -258,7 +263,12 @@
 
                         <div class="mb-4">
                             <label for="password_confirmation" class="form-label">Confirm Password</label>
-                            <input id="password_confirmation" type="password" name="password_confirmation" class="form-control" required>
+                            <div class="input-group">
+                                <input id="password_confirmation" type="password" name="password_confirmation" class="form-control" required>
+                                <button class="btn btn-outline-secondary toggle-password-btn" type="button" data-target="password_confirmation">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
@@ -334,6 +344,24 @@
                     reqAllMet.classList.remove('d-flex');
                     reqAllMet.classList.add('d-none');
                 }
+            });
+
+            // Password visibility toggle logic
+            document.querySelectorAll('.toggle-password-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const targetInput = document.getElementById(targetId);
+                    const icon = this.querySelector('i');
+                    if (targetInput.type === 'password') {
+                        targetInput.type = 'text';
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    } else {
+                        targetInput.type = 'password';
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    }
+                });
             });
         });
     </script>
