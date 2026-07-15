@@ -26,6 +26,36 @@ class RegistrationPasswordTest extends TestCase
         $this->assertAuthenticated();
     }
 
+    public function test_registration_fails_missing_lowercase_letter(): void
+    {
+        $response = $this->post(route('register'), [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'PASS@$#12345678',
+            'password_confirmation' => 'PASS@$#12345678',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertDatabaseMissing('users', [
+            'email' => 'john@example.com',
+        ]);
+    }
+
+    public function test_registration_fails_missing_uppercase_letter(): void
+    {
+        $response = $this->post(route('register'), [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'pass@$#12345678',
+            'password_confirmation' => 'pass@$#12345678',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertDatabaseMissing('users', [
+            'email' => 'john@example.com',
+        ]);
+    }
+
     public function test_registration_fails_missing_at_symbol(): void
     {
         $response = $this->post(route('register'), [

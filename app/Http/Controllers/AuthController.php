@@ -58,6 +58,12 @@ class AuthController extends Controller
                     if (!str_contains($value, '#')) {
                         $fail('The password must contain the "#" symbol.');
                     }
+                    if (!preg_match('/[a-z]/', $value)) {
+                        $fail('The password must contain at least one lowercase letter.');
+                    }
+                    if (!preg_match('/[A-Z]/', $value)) {
+                        $fail('The password must contain at least one uppercase letter.');
+                    }
                     if (preg_match_all('/\d/', $value) < 8) {
                         $fail('The password must contain at least 8 digits.');
                     }

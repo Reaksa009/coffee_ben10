@@ -234,6 +234,12 @@
                             <div class="card mt-2 border-0 bg-body-tertiary shadow-sm p-3 password-checklist-card">
                                 <h6 class="card-subtitle mb-2 text-muted fw-bold small"><i class="bi bi-shield-lock me-1"></i> Password Requirements</h6>
                                 <ul class="list-unstyled mb-0 small text-secondary">
+                                    <li id="req-lowercase" class="requirement-item text-danger py-1 transition-all">
+                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">lowercase</strong> letter
+                                    </li>
+                                    <li id="req-uppercase" class="requirement-item text-danger py-1 transition-all">
+                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">uppercase</strong> letter
+                                    </li>
                                     <li id="req-symbol-at" class="requirement-item text-danger py-1 transition-all">
                                         <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">@</strong> symbol
                                     </li>
@@ -282,6 +288,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const passwordInput = document.getElementById('password');
+            const reqLowercase = document.getElementById('req-lowercase');
+            const reqUppercase = document.getElementById('req-uppercase');
             const reqAt = document.getElementById('req-symbol-at');
             const reqDollar = document.getElementById('req-symbol-dollar');
             const reqHash = document.getElementById('req-symbol-hash');
@@ -308,6 +316,8 @@
             passwordInput.addEventListener('input', function() {
                 const val = passwordInput.value;
                 
+                const hasLowercase = /[a-z]/.test(val);
+                const hasUppercase = /[A-Z]/.test(val);
                 const hasAt = val.includes('@');
                 const hasDollar = val.includes('$');
                 const hasHash = val.includes('#');
@@ -316,12 +326,14 @@
                 const digitCount = (val.match(/\d/g) || []).length;
                 const has8Digits = digitCount >= 8;
 
+                updateRequirement(reqLowercase, hasLowercase);
+                updateRequirement(reqUppercase, hasUppercase);
                 updateRequirement(reqAt, hasAt);
                 updateRequirement(reqDollar, hasDollar);
                 updateRequirement(reqHash, hasHash);
                 updateRequirement(reqDigits, has8Digits);
 
-                if (hasAt && hasDollar && hasHash && has8Digits) {
+                if (hasLowercase && hasUppercase && hasAt && hasDollar && hasHash && has8Digits) {
                     if (reqAllMet.classList.contains('d-none')) {
                         reqAllMet.classList.remove('d-none');
                         reqAllMet.classList.add('d-flex');
