@@ -346,7 +346,7 @@
                                         <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains symbol: <strong class="text-dark">@</strong>, <strong class="text-dark">$</strong> or <strong class="text-dark">#</strong>
                                     </li>
                                     <li id="req-digits" class="requirement-item text-danger py-1 transition-all">
-                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">8 or more digits</strong>
+                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">8 or more characters</strong>
                                     </li>
                                 </ul>
                                 
@@ -419,9 +419,8 @@
                 const hasUppercase = /[A-Z]/.test(val);
                 const hasSymbol = val.includes('@') || val.includes('$') || val.includes('#');
                 
-                // count digits
-                const digitCount = (val.match(/\d/g) || []).length;
-                const has8Digits = digitCount >= 8;
+                // check length
+                const has8Digits = val.length >= 8;
 
                 updateRequirement(reqLowercase, hasLowercase);
                 updateRequirement(reqUppercase, hasUppercase);

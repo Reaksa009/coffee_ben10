@@ -116,14 +116,14 @@ class RegistrationPasswordTest extends TestCase
         ]);
     }
 
-    public function test_registration_fails_insufficient_digits(): void
+    public function test_registration_fails_insufficient_length(): void
     {
-        // 7 digits: 1234567
+        // 7 characters: Pas@123
         $response = $this->post(route('register'), [
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'password' => 'Pass@1234567',
-            'password_confirmation' => 'Pass@1234567',
+            'password' => 'Pas@123',
+            'password_confirmation' => 'Pas@123',
         ]);
 
         $response->assertSessionHasErrors('password');

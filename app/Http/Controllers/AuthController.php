@@ -58,8 +58,8 @@ class AuthController extends Controller
                     if (!preg_match('/[A-Z]/', $value)) {
                         $fail('The password must contain at least one uppercase letter.');
                     }
-                    if (preg_match_all('/\d/', $value) < 8) {
-                        $fail('The password must contain at least 8 digits.');
+                    if (strlen($value) < 8) {
+                        $fail('The password must be at least 8 characters.');
                     }
                 },
             ],
