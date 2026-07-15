@@ -49,14 +49,8 @@ class AuthController extends Controller
                 'string',
                 'confirmed',
                 function ($attribute, $value, $fail) {
-                    if (!str_contains($value, '@')) {
-                        $fail('The password must contain the "@" symbol.');
-                    }
-                    if (!str_contains($value, '$')) {
-                        $fail('The password must contain the "$" symbol.');
-                    }
-                    if (!str_contains($value, '#')) {
-                        $fail('The password must contain the "#" symbol.');
+                    if (!str_contains($value, '@') && !str_contains($value, '$') && !str_contains($value, '#')) {
+                        $fail('The password must contain at least one symbol (@, $, #).');
                     }
                     if (!preg_match('/[a-z]/', $value)) {
                         $fail('The password must contain at least one lowercase letter.');

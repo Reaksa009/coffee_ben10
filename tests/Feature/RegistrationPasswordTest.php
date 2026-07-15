@@ -56,43 +56,58 @@ class RegistrationPasswordTest extends TestCase
         ]);
     }
 
-    public function test_registration_fails_missing_at_symbol(): void
+    public function test_registration_succeeds_with_only_at_symbol(): void
     {
         $response = $this->post(route('register'), [
             'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'Pass$#12345678',
-            'password_confirmation' => 'Pass$#12345678',
+            'email' => 'john1@example.com',
+            'password' => 'Pass@12345678',
+            'password_confirmation' => 'Pass@12345678',
         ]);
 
-        $response->assertSessionHasErrors('password');
-        $this->assertDatabaseMissing('users', [
-            'email' => 'john@example.com',
+        $response->assertRedirect(route('dashboard'));
+        $this->assertDatabaseHas('users', [
+            'email' => 'john1@example.com',
         ]);
     }
 
-    public function test_registration_fails_missing_dollar_symbol(): void
+    public function test_registration_succeeds_with_only_dollar_symbol(): void
     {
         $response = $this->post(route('register'), [
             'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'Pass@#12345678',
-            'password_confirmation' => 'Pass@#12345678',
+            'email' => 'john2@example.com',
+            'password' => 'Pass$12345678',
+            'password_confirmation' => 'Pass$12345678',
         ]);
 
-        $response->assertSessionHasErrors('password');
-        $this->assertDatabaseMissing('users', [
-            'email' => 'john@example.com',
+        $response->assertRedirect(route('dashboard'));
+        $this->assertDatabaseHas('users', [
+            'email' => 'john2@example.com',
         ]);
     }
 
-    public function test_registration_fails_missing_hash_symbol(): void
+    public function test_registration_succeeds_with_only_hash_symbol(): void
+    {
+        $response = $this->post(route('register'), [
+            'name' => 'John Doe',
+            'email' => 'john3@example.com',
+            'password' => 'Pass#12345678',
+            'password_confirmation' => 'Pass#12345678',
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+        $this->assertDatabaseHas('users', [
+            'email' => 'john3@example.com',
+        ]);
+    }
+
+    public function test_registration_fails_missing_all_required_symbols(): void
     {
         $response = $this->post(route('register'), [
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'password' => 'Pass@$12345678',
-            'password_confirmation' => 'Pass@$12345678',
+            'password' => 'Pass%12345678', // has a symbol but not @, $, or #
+            'password_confirmation' => 'Pass%12345678',
         ]);
 
         $response->assertSessionHasErrors('password');
@@ -107,8 +122,8 @@ class RegistrationPasswordTest extends TestCase
         $response = $this->post(route('register'), [
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'password' => 'Pass@$#1234567',
-            'password_confirmation' => 'Pass@$#1234567',
+            'password' => 'Pass@1234567',
+            'password_confirmation' => 'Pass@1234567',
         ]);
 
         $response->assertSessionHasErrors('password');

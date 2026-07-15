@@ -240,14 +240,8 @@
                                     <li id="req-uppercase" class="requirement-item text-danger py-1 transition-all">
                                         <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">uppercase</strong> letter
                                     </li>
-                                    <li id="req-symbol-at" class="requirement-item text-danger py-1 transition-all">
-                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">@</strong> symbol
-                                    </li>
-                                    <li id="req-symbol-dollar" class="requirement-item text-danger py-1 transition-all">
-                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">$</strong> symbol
-                                    </li>
-                                    <li id="req-symbol-hash" class="requirement-item text-danger py-1 transition-all">
-                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">#</strong> symbol
+                                    <li id="req-symbol" class="requirement-item text-danger py-1 transition-all">
+                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains symbol: <strong class="text-dark">@</strong>, <strong class="text-dark">$</strong> or <strong class="text-dark">#</strong>
                                     </li>
                                     <li id="req-digits" class="requirement-item text-danger py-1 transition-all">
                                         <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">8 or more digits</strong>
@@ -290,9 +284,7 @@
             const passwordInput = document.getElementById('password');
             const reqLowercase = document.getElementById('req-lowercase');
             const reqUppercase = document.getElementById('req-uppercase');
-            const reqAt = document.getElementById('req-symbol-at');
-            const reqDollar = document.getElementById('req-symbol-dollar');
-            const reqHash = document.getElementById('req-symbol-hash');
+            const reqSymbol = document.getElementById('req-symbol');
             const reqDigits = document.getElementById('req-digits');
             const reqAllMet = document.getElementById('req-all-met');
 
@@ -318,9 +310,7 @@
                 
                 const hasLowercase = /[a-z]/.test(val);
                 const hasUppercase = /[A-Z]/.test(val);
-                const hasAt = val.includes('@');
-                const hasDollar = val.includes('$');
-                const hasHash = val.includes('#');
+                const hasSymbol = val.includes('@') || val.includes('$') || val.includes('#');
                 
                 // count digits
                 const digitCount = (val.match(/\d/g) || []).length;
@@ -328,12 +318,10 @@
 
                 updateRequirement(reqLowercase, hasLowercase);
                 updateRequirement(reqUppercase, hasUppercase);
-                updateRequirement(reqAt, hasAt);
-                updateRequirement(reqDollar, hasDollar);
-                updateRequirement(reqHash, hasHash);
+                updateRequirement(reqSymbol, hasSymbol);
                 updateRequirement(reqDigits, has8Digits);
 
-                if (hasLowercase && hasUppercase && hasAt && hasDollar && hasHash && has8Digits) {
+                if (hasLowercase && hasUppercase && hasSymbol && has8Digits) {
                     if (reqAllMet.classList.contains('d-none')) {
                         reqAllMet.classList.remove('d-none');
                         reqAllMet.classList.add('d-flex');
