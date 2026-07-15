@@ -134,6 +134,25 @@
                 display: none;
             }
         }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .requirement-item i {
+            transition: transform 0.2s ease;
+        }
+        .requirement-item.text-success i {
+            transform: scale(1.1);
+        }
+        .animate-bounce {
+            animation: bounce 0.5s ease-out 1;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
     </style>
 
     <div class="auth-wrap">
@@ -210,6 +229,31 @@
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            
+                            <!-- Password Requirements Checklist -->
+                            <div class="card mt-2 border-0 bg-body-tertiary shadow-sm p-3 password-checklist-card">
+                                <h6 class="card-subtitle mb-2 text-muted fw-bold small"><i class="bi bi-shield-lock me-1"></i> Password Requirements</h6>
+                                <ul class="list-unstyled mb-0 small text-secondary">
+                                    <li id="req-symbol-at" class="requirement-item text-danger py-1 transition-all">
+                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">@</strong> symbol
+                                    </li>
+                                    <li id="req-symbol-dollar" class="requirement-item text-danger py-1 transition-all">
+                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">$</strong> symbol
+                                    </li>
+                                    <li id="req-symbol-hash" class="requirement-item text-danger py-1 transition-all">
+                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">#</strong> symbol
+                                    </li>
+                                    <li id="req-digits" class="requirement-item text-danger py-1 transition-all">
+                                        <i class="bi bi-x-circle-fill text-danger me-1"></i> Contains <strong class="text-dark">8 or more digits</strong>
+                                    </li>
+                                </ul>
+                                
+                                <!-- Sign indicating all conditions met -->
+                                <div id="req-all-met" class="mt-3 p-2 bg-success-subtle text-success border border-success-subtle rounded d-none align-items-center justify-content-center transition-all">
+                                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                                    <span class="fw-bold small">All conditions have been met!</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-4">
@@ -232,4 +276,65 @@
             </div>
         </section>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const reqAt = document.getElementById('req-symbol-at');
+            const reqDollar = document.getElementById('req-symbol-dollar');
+            const reqHash = document.getElementById('req-symbol-hash');
+            const reqDigits = document.getElementById('req-digits');
+            const reqAllMet = document.getElementById('req-all-met');
+
+            function updateRequirement(element, isValid) {
+                const icon = element.querySelector('i');
+                if (isValid) {
+                    element.classList.remove('text-danger');
+                    element.classList.add('text-success');
+                    if (icon) {
+                        icon.className = 'bi bi-check-circle-fill text-success me-1';
+                    }
+                } else {
+                    element.classList.remove('text-success');
+                    element.classList.add('text-danger');
+                    if (icon) {
+                        icon.className = 'bi bi-x-circle-fill text-danger me-1';
+                    }
+                }
+            }
+
+            passwordInput.addEventListener('input', function() {
+                const val = passwordInput.value;
+                
+                const hasAt = val.includes('@');
+                const hasDollar = val.includes('$');
+                const hasHash = val.includes('#');
+                
+                // count digits
+                const digitCount = (val.match(/\d/g) || []).length;
+                const has8Digits = digitCount >= 8;
+
+                updateRequirement(reqAt, hasAt);
+                updateRequirement(reqDollar, hasDollar);
+                updateRequirement(reqHash, hasHash);
+                updateRequirement(reqDigits, has8Digits);
+
+                if (hasAt && hasDollar && hasHash && has8Digits) {
+                    if (reqAllMet.classList.contains('d-none')) {
+                        reqAllMet.classList.remove('d-none');
+                        reqAllMet.classList.add('d-flex');
+                        reqAllMet.classList.add('animate-bounce');
+                        setTimeout(() => {
+                            reqAllMet.classList.remove('animate-bounce');
+                        }, 500);
+                    }
+                } else {
+                    reqAllMet.classList.remove('d-flex');
+                    reqAllMet.classList.add('d-none');
+                }
+            });
+        });
+    </script>
 @endsection

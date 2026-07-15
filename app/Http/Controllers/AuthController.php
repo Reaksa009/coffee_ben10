@@ -44,7 +44,25 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                function ($attribute, $value, $fail) {
+                    if (!str_contains($value, '@')) {
+                        $fail('The password must contain the "@" symbol.');
+                    }
+                    if (!str_contains($value, '$')) {
+                        $fail('The password must contain the "$" symbol.');
+                    }
+                    if (!str_contains($value, '#')) {
+                        $fail('The password must contain the "#" symbol.');
+                    }
+                    if (preg_match_all('/\d/', $value) < 8) {
+                        $fail('The password must contain at least 8 digits.');
+                    }
+                },
+            ],
         ]);
 
         $user = User::create([
