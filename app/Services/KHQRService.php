@@ -44,7 +44,11 @@ class KHQRService
     public function createPaymentRequest(Order $order): array
     {
         if ($this->usesKhqrLink()) {
-            return $this->createKhqrLinkPaymentRequest($order);
+            try {
+                return $this->createKhqrLinkPaymentRequest($order);
+            } catch (\Throwable $e) {
+                report(new \RuntimeException('KHQR Link payment creation failed: ' . $e->getMessage() . '. Falling back to local generation.', 0, $e));
+            }
         }
 
         return $this->createLocalPaymentRequest($order);

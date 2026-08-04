@@ -292,13 +292,13 @@ class PaymentController extends Controller
         $orderId = $request->query('order');
         $order = Order::findOrFail($orderId);
 
-        if (config('khqr.provider') === 'khqr_link') {
+        $payment = $order->payments()->latest()->first();
+        if ($payment && $payment->provider === 'khqr_link') {
             return redirect()
                 ->route('pos.receipt', ['id' => $order->id])
                 ->with('error', 'Payment must be confirmed by KHQR Link verification.');
         }
 
-        $payment = $order->payments()->latest()->first();
         if ($payment) {
             $payment->update(['status' => 'paid', 'transaction_id' => 'SIM-'.$payment->id, 'meta' => array_merge($payment->meta ?? [], ['confirmed_at' => now()->toDateTimeString()])]);
             $order->update(['status' => 'paid']);

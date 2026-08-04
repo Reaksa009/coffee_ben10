@@ -627,7 +627,9 @@
             }
 
             function renderPaymentScreen(state) {
-                const qrUrl = state.payment.qr_image_url;
+                const qrUrl = state.payment.qr_image_url 
+                    ? state.payment.qr_image_url 
+                    : (state.payment.qr_data ? 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(state.payment.qr_data) + '&size=250x250' : null);
                 const grandTotal = state.order.total_amount;
 
                 interactionCard.innerHTML = `
